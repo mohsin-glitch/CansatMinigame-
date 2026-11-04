@@ -1,0 +1,4250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CanSat Arcade 2026 | 3-in-1 Flight Games & Global Leaderboard</title>
+  <meta name="description" content="Official 3-in-1 CanSat Arcade: Chute Pop, Stack-Up, and Radar Ring! Play, dodge, stack, bounce, and compete for top 3 prizes after Dec 12, 2026.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050811;
+      --panel-bg: rgba(13, 20, 36, 0.92);
+      --card-bg: rgba(18, 28, 51, 0.82);
+      --card-border: rgba(0, 242, 254, 0.22);
+      --card-hover: rgba(0, 242, 254, 0.45);
+      --cyan: #00f2fe;
+      --blue: #3b82f6;
+      --deep-blue: #1d4ed8;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --orange: #f97316;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+      --gold: #fbbf24;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-display: 'Orbitron', monospace;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'Space Grotesk', -apple-system, sans-serif;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-body);
+    }
+
+    /* Subtle Animated Cosmic Grid */
+    #ambientBg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.65;
+    }
+
+    /* Master App Container */
+    #appRoot {
+      position: relative;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Navigation HUD */
+    .arcade-hud-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      background: rgba(8, 14, 26, 0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+      z-index: 50;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .brand-logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00f2fe, #3b82f6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      background: linear-gradient(90deg, #ffffff, #00f2fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+    }
+
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      color: var(--cyan);
+      letter-spacing: 0.12em;
+    }
+
+    /* Prize Ticker Banner */
+    .prize-ticker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.12));
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #fef08a;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+      animation: prizeGlow 3s infinite alternate;
+    }
+
+    @keyframes prizeGlow {
+      0% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.15); }
+      100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-hud {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-hud:hover, .btn-hud:active {
+      border-color: var(--cyan);
+      background: rgba(0, 242, 254, 0.12);
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+    }
+
+    .btn-hud.judge-badge-btn {
+      border-color: rgba(168, 85, 247, 0.4);
+      background: rgba(168, 85, 247, 0.15);
+      color: #e9d5ff;
+    }
+
+    .btn-hud.judge-badge-btn:hover {
+      border-color: var(--purple);
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+    }
+
+    /* Main Viewport Container */
+    #viewportArea {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Screen Views */
+    .view-panel {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 10;
+    }
+
+    .view-panel.active {
+      display: flex;
+    }
+
+    /* HUB VIEW (Game Selection) */
+    #viewHub {
+      padding: 24px 16px 40px;
+    }
+
+    .hub-container {
+      width: 100%;
+      max-width: 1080px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin: auto 0;
+    }
+
+    .hub-hero {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .hub-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      padding: 5px 16px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--cyan);
+      margin-bottom: 12px;
+    }
+
+    .hub-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #ffffff 30%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+      text-shadow: 0 0 35px rgba(0, 242, 254, 0.2);
+    }
+
+    .hub-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Profile Overview Card in Hub */
+    .pilot-profile-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      border-radius: var(--radius-lg);
+      padding: 14px 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .profile-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .avatar-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 2px solid var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+    }
+
+    .profile-meta h3 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .role-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .role-badge.competitor {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+    }
+
+    .role-badge.judge {
+      background: rgba(168, 85, 247, 0.2);
+      border: 1px solid var(--purple);
+      color: #d8b4fe;
+    }
+
+    .profile-meta p {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    /* Game Selector Grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .game-card {
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--card-hover);
+      box-shadow: 0 12px 35px rgba(0, 242, 254, 0.18);
+      background: rgba(22, 34, 60, 0.9);
+    }
+
+    .game-card:hover::before {
+      opacity: 1;
+    }
+
+    .game-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .game-pill {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.08em;
+    }
+
+    .pill-chute {
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      color: var(--cyan);
+    }
+
+    .pill-stack {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--gold);
+    }
+
+    .pill-radar {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      color: var(--purple);
+    }
+
+    .game-score-badge {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: #94a3b8;
+    }
+
+    .game-score-badge span {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .game-card-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .game-card-desc {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+      flex-grow: 1;
+    }
+
+    .game-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .game-tag {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-launch-game {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: none;
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-chute {
+      background: linear-gradient(135deg, #00f2fe, #2563eb);
+      color: #050811;
+      box-shadow: 0 4px 18px rgba(0, 242, 254, 0.35);
+    }
+
+    .btn-chute:hover {
+      box-shadow: 0 6px 25px rgba(0, 242, 254, 0.55);
+      filter: brightness(1.1);
+    }
+
+    .btn-stack {
+      background: linear-gradient(135deg, #fbbf24, #ea580c);
+      color: #050811;
+      box-shadow: 0 4px 18px rgba(251, 191, 36, 0.35);
+    }
+
+    .btn-stack:hover {
+      box-shadow: 0 6px 25px rgba(251, 191, 36, 0.55);
+      filter: brightness(1.1);
+    }
+
+    .btn-radar {
+      background: linear-gradient(135deg, #c084fc, #9333ea);
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(168, 85, 247, 0.35);
+    }
+
+    .btn-radar:hover {
+      box-shadow: 0 6px 25px rgba(168, 85, 247, 0.55);
+      filter: brightness(1.1);
+    }
+
+    /* Prize & Info Callout Banner */
+    .prize-callout {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(239, 68, 68, 0.08));
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .prize-callout-text h4 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: #fef08a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .prize-callout-text p {
+      font-size: 0.84rem;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
+    .prize-callout-text small {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.74rem;
+      color: #cbd5e1;
+      font-family: var(--font-mono);
+    }
+
+    /* ACTIVE GAME VIEW */
+    #viewGame {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      background: #000;
+      overflow: hidden;
+    }
+
+    #viewGame.active {
+      display: flex;
+    }
+
+    /* In-Game Top Bar */
+    .ingame-top-bar {
+      flex-shrink: 0;
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 14, 26, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 30;
+    }
+
+    .ingame-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-exit-game {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-exit-game:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--rose);
+    }
+
+    .ingame-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .ingame-stats {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stat-pill .lbl {
+      color: var(--text-dim);
+      font-size: 0.68rem;
+    }
+
+    .stat-pill .val {
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    /* Game Canvas Container */
+    .game-stage-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #020408;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    canvas#gameCanvas {
+      display: block;
+      background: #05070e;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+      touch-action: none;
+    }
+
+    /* On-Screen Mobile Touch Controls Overlay */
+    .touch-controls-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 25;
+      display: none;
+    }
+
+    .touch-controls-layer.visible {
+      display: block;
+    }
+
+    .touch-btn {
+      position: absolute;
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.65);
+      border: 2px solid rgba(0, 242, 254, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: var(--font-display);
+      font-weight: 800;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      touch-action: none;
+    }
+
+    .touch-btn:active, .touch-btn.pressed {
+      background: rgba(0, 242, 254, 0.35);
+      border-color: #fff;
+      transform: scale(0.94);
+    }
+
+    /* Chute Pop Touch Buttons */
+    #touchLeft {
+      left: 20px;
+      bottom: 24px;
+      width: 68px;
+      height: 68px;
+      font-size: 1.4rem;
+    }
+
+    #touchRight {
+      left: 100px;
+      bottom: 24px;
+      width: 68px;
+      height: 68px;
+      font-size: 1.4rem;
+    }
+
+    #touchChuteHold {
+      right: 24px;
+      bottom: 24px;
+      width: 90px;
+      height: 90px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(37, 99, 235, 0.3));
+      border: 2px solid var(--cyan);
+      font-size: 0.8rem;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    /* One-Button Stack Tap Zone */
+    #touchStackTap {
+      inset: 0;
+      border-radius: 0;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 24px;
+      pointer-events: auto;
+    }
+
+    .stack-tap-hint {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+    }
+
+    /* Radar Touch Buttons */
+    #touchRadarLeft {
+      left: 24px;
+      bottom: 24px;
+      width: 74px;
+      height: 74px;
+      font-size: 1.5rem;
+    }
+
+    #touchRadarRight {
+      right: 24px;
+      bottom: 24px;
+      width: 74px;
+      height: 74px;
+      font-size: 1.5rem;
+    }
+
+    /* MODALS & OVERLAYS */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 6, 14, 0.88);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .arcade-modal {
+      background: var(--panel-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 242, 254, 0.15);
+      animation: modalSlide 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    @keyframes modalSlide {
+      from { opacity: 0; transform: scale(0.95) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header-bar {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.6rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .btn-close-modal:hover {
+      color: #fff;
+    }
+
+    .modal-body-scroll {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Form Fields in Profile Modal */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--cyan);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .form-input {
+      background: rgba(10, 16, 28, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+    }
+
+    .role-selection-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .role-choice-card {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .role-choice-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .role-choice-card.selected.competitor {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.12);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+    }
+
+    .role-choice-card.selected.judge {
+      border-color: var(--purple);
+      background: rgba(168, 85, 247, 0.16);
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+    }
+
+    .role-choice-title {
+      font-family: var(--font-display);
+      font-size: 0.92rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .role-choice-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .avatar-picker-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .avatar-opt {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .avatar-opt.selected {
+      border-color: var(--cyan);
+      background: rgba(0, 242, 254, 0.2);
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+      transform: scale(1.08);
+    }
+
+    /* Leaderboard Modal Tabs & List */
+    .lb-nav-tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+      overflow-x: auto;
+    }
+
+    .lb-tab-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .lb-tab-btn.active {
+      background: rgba(0, 242, 254, 0.15);
+      border-color: var(--cyan);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .lb-filter-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .lb-filter-pills {
+      display: flex;
+      gap: 6px;
+    }
+
+    .lb-filter-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .lb-filter-btn.active {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .lb-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lb-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 10px 14px;
+      transition: background 0.15s;
+    }
+
+    .lb-row:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .lb-row.top-1 {
+      border-color: rgba(251, 191, 36, 0.5);
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.12), rgba(15, 23, 42, 0.6));
+    }
+
+    .lb-row.top-2 {
+      border-color: rgba(226, 232, 240, 0.4);
+      background: linear-gradient(90deg, rgba(226, 232, 240, 0.08), rgba(15, 23, 42, 0.6));
+    }
+
+    .lb-row.top-3 {
+      border-color: rgba(217, 119, 6, 0.4);
+      background: linear-gradient(90deg, rgba(217, 119, 6, 0.08), rgba(15, 23, 42, 0.6));
+    }
+
+    .lb-row.is-me {
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+      border-color: var(--cyan);
+    }
+
+    .lb-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lb-rank {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      width: 24px;
+      text-align: center;
+      color: var(--text-dim);
+    }
+
+    .top-1 .lb-rank { color: #fde047; }
+    .top-2 .lb-rank { color: #e2e8f0; }
+    .top-3 .lb-rank { color: #f97316; }
+
+    .lb-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lb-name {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lb-details {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+
+    .lb-score {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    /* GAME OVER OVERLAY (Arcade Initials + Summary) */
+    #gameOverOverlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.88);
+      backdrop-filter: blur(12px);
+      z-index: 40;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #gameOverOverlay.active {
+      display: flex;
+    }
+
+    .game-over-box {
+      width: 100%;
+      max-width: 440px;
+      background: var(--panel-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.9), 0 0 35px rgba(239, 68, 68, 0.2);
+      animation: modalSlide 0.25s ease-out;
+    }
+
+    .game-over-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--rose);
+      letter-spacing: 0.15em;
+    }
+
+    .game-over-title {
+      font-family: var(--font-display);
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 0.04em;
+    }
+
+    .final-score-display {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+
+    .final-score-display .lbl {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    .final-score-display .val {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--cyan);
+      text-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+    }
+
+    /* Arcade 3-Letter Slot Input */
+    .arcade-initials-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .arcade-initials-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .initials-slots {
+      display: flex;
+      gap: 10px;
+    }
+
+    .slot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .slot-arrow {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      width: 32px;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+
+    .slot-arrow:hover {
+      background: rgba(0, 242, 254, 0.2);
+      border-color: var(--cyan);
+    }
+
+    .slot-char {
+      width: 44px;
+      height: 52px;
+      background: #020617;
+      border: 2px solid var(--cyan);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+    }
+
+    .game-over-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary-action {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      border: none;
+      color: #050811;
+      font-family: var(--font-display);
+      font-size: 0.84rem;
+      font-weight: 800;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.35);
+    }
+
+    .btn-primary-action:hover {
+      filter: brightness(1.1);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 640px) {
+      .arcade-hud-header {
+        padding: 8px 12px;
+      }
+      .brand-title {
+        font-size: 0.9rem;
+      }
+      .prize-ticker {
+        display: none; /* Hide ticker on small mobile to fit profile button */
+      }
+      .hub-title {
+        font-size: 1.6rem;
+      }
+      .pilot-profile-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Space Canvas -->
+  <canvas id="ambientBg"></canvas>
+
+  <div id="appRoot">
+
+    <!-- Top Navigation HUD -->
+    <header class="arcade-hud-header">
+      <div class="brand-wrap" id="btnGoHome" title="Return to CanSat Arcade Hub">
+        <div class="brand-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#050811" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">CANSAT ARCADE</h1>
+          <p class="brand-sub">2026 FLIGHT ACADEMY</p>
+        </div>
+      </div>
+
+      <!-- Top 3 Prize Ticker Banner -->
+      <div class="prize-ticker" id="prizeTicker" title="Competition Details">
+        <span>🏆</span>
+        <span>TOP 3 GET AMAZING PRIZES AFTER DEC 12, 2026!</span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Audio Mute/Unmute Toggle -->
+        <button class="btn-hud" id="btnAudioToggle" title="Toggle Sound Synth">
+          <span id="audioIcon">🔊</span>
+          <span id="audioLabel">SOUND ON</span>
+        </button>
+
+        <!-- Leaderboard Modal Trigger -->
+        <button class="btn-hud" id="btnOpenLeaderboard" title="View Arcade Leaderboard">
+          <span>🏅</span>
+          <span>RANKS</span>
+        </button>
+
+        <!-- Pilot Profile Trigger -->
+        <button class="btn-hud" id="btnOpenProfile" title="Edit Pilot Handle & Judge Status">
+          <span id="hudAvatarIcon">🚀</span>
+          <span id="hudPilotName">PILOT</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Master Viewport Area -->
+    <main id="viewportArea">
+
+      <!-- ================= 1. ARCADE HUB VIEW ================= -->
+      <section class="view-panel active" id="viewHub">
+        <div class="hub-container">
+
+          <!-- Hero Greeting -->
+          <div class="hub-hero">
+            <div class="hub-badge">
+              <span>●</span>
+              <span>OFFICIAL SKYLINK CANSAT 2026 SIMULATOR</span>
+            </div>
+            <h2 class="hub-title">MISSION COMMAND</h2>
+            <p class="hub-subtitle">
+              Master the physics of a descending satellite, stack precision hardware modules into the flight cylinder, and defend ground station telemetry!
+            </p>
+          </div>
+
+          <!-- Pilot Identity Card & Role Notice -->
+          <div class="pilot-profile-card">
+            <div class="profile-left">
+              <div class="avatar-icon-box" id="hubAvatarDisplay">🚀</div>
+              <div class="profile-meta">
+                <h3>
+                  <span id="hubProfileName">CADET PILOT</span>
+                  <span class="role-badge competitor" id="hubRoleBadge">COMPETITOR</span>
+                </h3>
+                <p id="hubRoleHint">Eligible for the Top 3 Prize Pool after Dec 12, 2026</p>
+              </div>
+            </div>
+            <button class="btn-hud" id="btnEditProfileQuick">
+              <span>⚙️</span> Edit Call-Sign / Judge Role
+            </button>
+          </div>
+
+          <!-- Game Cards Grid -->
+          <div class="game-grid">
+
+            <!-- GAME 1: CHUTE POP! -->
+            <article class="game-card" id="cardChutePop">
+              <div>
+                <div class="game-card-header">
+                  <span class="game-pill pill-chute">MISSION 01</span>
+                  <div class="game-score-badge">BEST: <span id="bestChuteScore">0</span></div>
+                </div>
+                <h3 class="game-card-title">CANSAT: CHUTE POP!</h3>
+                <p class="game-card-desc">
+                  Descend through the atmosphere! Pop your dome parachute to glide gently through tight gaps or dive in free-fall to rack up high-risk x8 combos.
+                </p>
+                <div class="game-tags">
+                  <span class="game-tag">Vertical Runner</span>
+                  <span class="game-tag">Dual-State Physics</span>
+                  <span class="game-tag">2-Hit Forgiveness</span>
+                  <span class="game-tag">Near-Miss Bonus</span>
+                </div>
+              </div>
+              <button class="btn-launch-game btn-chute" id="btnPlayChute">
+                <span>🪂</span> LAUNCH CHUTE POP
+              </button>
+            </article>
+
+            <!-- GAME 2: STACK-UP! -->
+            <article class="game-card" id="cardStackUp">
+              <div>
+                <div class="game-card-header">
+                  <span class="game-pill pill-stack">MISSION 02</span>
+                  <div class="game-score-badge">BEST: <span id="bestStackScore">0</span></div>
+                </div>
+                <h3 class="game-card-title">CANSAT: STACK-UP!</h3>
+                <p class="game-card-desc">
+                  Assemble the CanSat cylinder! Drop sliding hardware subsystems with single-tap precision. Laser guides slice off overhangs, while 3 perfect snaps widen your module!
+                </p>
+                <div class="game-tags">
+                  <span class="game-tag">One-Button Stacker</span>
+                  <span class="game-tag">Laser Overhang Slice</span>
+                  <span class="game-tag">Harmonic Chimes</span>
+                  <span class="game-tag">6-Module Unit Seal</span>
+                </div>
+              </div>
+              <button class="btn-launch-game btn-stack" id="btnPlayStack">
+                <span>📦</span> LAUNCH STACK-UP
+              </button>
+            </article>
+
+            <!-- GAME 3: RADAR RING! -->
+            <article class="game-card" id="cardRadarRing">
+              <div>
+                <div class="game-card-header">
+                  <span class="game-pill pill-radar">MISSION 03</span>
+                  <div class="game-score-badge">BEST: <span id="bestRadarScore">0</span></div>
+                </div>
+                <h3 class="game-card-title">CANSAT: RADAR RING</h3>
+                <p class="game-card-desc">
+                  Ground Station 360° Defense! Rotate your curved radar dish to bounce telemetry data packets into the central CanSat, trigger multiball, and dodge wind jammers.
+                </p>
+                <div class="game-tags">
+                  <span class="game-tag">360° Circular Pong</span>
+                  <span class="game-tag">Multiball Escalation</span>
+                  <span class="game-tag">Solar Flare Power-Up</span>
+                  <span class="game-tag">Edge Clip Trickshots</span>
+                </div>
+              </div>
+              <button class="btn-launch-game btn-radar" id="btnPlayRadar">
+                <span>📡</span> LAUNCH RADAR RING
+              </button>
+            </article>
+
+          </div>
+
+          <!-- Dec 12 Prize Announcement Callout -->
+          <div class="prize-callout">
+            <div class="prize-callout-text">
+              <h4><span>🎁</span> OFFICIAL CANSAT 2026 PRIZE POOL</h4>
+              <p>
+                The <strong>Top 3 Competitors</strong> on the Global Leaderboards will win exclusive aerospace & robotics prizes after <strong>December 12, 2026</strong>!
+              </p>
+              <small>
+                *Note: Official CanSat Judges and Faculty can tag their profile as <strong>[JUDGE]</strong> to enter scores in the Exhibition Division (judges don't win prizes lol, but get showcased!).
+              </small>
+            </div>
+            <button class="btn-hud" id="btnViewPrizesLeaderboard">
+              <span>🏆</span> View Standings
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= 2. ACTIVE IN-GAME VIEW ================= -->
+      <section class="view-panel" id="viewGame">
+        
+        <!-- In-Game Status HUD -->
+        <div class="ingame-top-bar">
+          <div class="ingame-left">
+            <button class="btn-exit-game" id="btnLeaveGame">✕ EXIT TO HUB</button>
+            <span class="ingame-title" id="inGameTitle">CANSAT: CHUTE POP!</span>
+          </div>
+
+          <div class="ingame-stats">
+            <div class="stat-pill">
+              <span class="lbl">SCORE</span>
+              <span class="val" id="hudScoreVal">0</span>
+            </div>
+            <div class="stat-pill" id="hudExtraStatPill">
+              <span class="lbl" id="hudExtraStatLbl">COMBO</span>
+              <span class="val" id="hudExtraStatVal">x1</span>
+            </div>
+            <div class="stat-pill" id="hudHealthStatPill">
+              <span class="lbl" id="hudHealthStatLbl">CHUTE</span>
+              <span class="val" id="hudHealthStatVal">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- The Canvas Arena -->
+        <div class="game-stage-container" id="gameCanvasWrap">
+          <canvas id="gameCanvas" width="480" height="720"></canvas>
+
+          <!-- On-Screen Touch Controls (Mobile Friendly) -->
+          <div class="touch-controls-layer" id="touchControlsLayer">
+            <!-- Chute Pop Controls -->
+            <button class="touch-btn" id="touchLeft">◀</button>
+            <button class="touch-btn" id="touchRight">▶</button>
+            <button class="touch-btn" id="touchChuteHold">HOLD<br>CHUTE</button>
+
+            <!-- Stack-Up Tap Zone -->
+            <div class="touch-btn" id="touchStackTap" style="display: none;">
+              <div class="stack-tap-hint">TAP TO DROP MODULE</div>
+            </div>
+
+            <!-- Radar Ring Controls -->
+            <button class="touch-btn" id="touchRadarLeft" style="display: none;">⟲</button>
+            <button class="touch-btn" id="touchRadarRight" style="display: none;">⟳</button>
+          </div>
+
+          <!-- GAME OVER OVERLAY -->
+          <div id="gameOverOverlay">
+            <div class="game-over-box">
+              <span class="game-over-tag" id="gameOverTag">MISSION TERMINATED</span>
+              <h3 class="game-over-title" id="gameOverHeading">TOUCHDOWN!</h3>
+
+              <div class="final-score-display">
+                <span class="lbl">FINAL MISSION SCORE</span>
+                <div class="val" id="gameOverScoreVal">0</div>
+                <div class="lbl" id="gameOverDetailsVal">Alt: 1,420m • 8 Near-Misses</div>
+              </div>
+
+              <!-- Arcade 3-Letter Initials Picker -->
+              <div class="arcade-initials-wrap">
+                <span class="arcade-initials-label">CONFIRM PILOT INITIALS FOR LEADERBOARD</span>
+                <div class="initials-slots">
+                  <div class="slot-col">
+                    <button class="slot-arrow" data-slot="0" data-dir="1">▲</button>
+                    <div class="slot-char" id="slot0">A</div>
+                    <button class="slot-arrow" data-slot="0" data-dir="-1">▼</button>
+                  </div>
+                  <div class="slot-col">
+                    <button class="slot-arrow" data-slot="1" data-dir="1">▲</button>
+                    <div class="slot-char" id="slot1">A</div>
+                    <button class="slot-arrow" data-slot="1" data-dir="-1">▼</button>
+                  </div>
+                  <div class="slot-col">
+                    <button class="slot-arrow" data-slot="2" data-dir="1">▲</button>
+                    <div class="slot-char" id="slot2">A</div>
+                    <button class="slot-arrow" data-slot="2" data-dir="-1">▼</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="game-over-buttons">
+                <button class="btn-secondary" id="btnRestartGame">RETRY RUN</button>
+                <button class="btn-primary-action" id="btnSubmitScore">SUBMIT SCORE</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ================= 3. PILOT PROFILE MODAL ================= -->
+  <div class="modal-backdrop" id="modalProfile">
+    <div class="arcade-modal">
+      <div class="modal-header-bar">
+        <h3 class="modal-header-title"><span>👤</span> PILOT IDENTITY & ROLE</h3>
+        <button class="btn-close-modal" id="btnCloseProfileModal">&times;</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- Call-Sign Input -->
+        <div class="form-group">
+          <label class="form-label" for="inputPilotName">CALL-SIGN / NAME (PERSISTENT):</label>
+          <input type="text" id="inputPilotName" class="form-input" maxlength="16" placeholder="e.g. SKY-PILOT, CADET-9">
+          <small style="color: var(--text-dim); font-size: 0.72rem;">Saved in your browser — your name and records stay intact whenever you return!</small>
+        </div>
+
+        <!-- Role Selector: Competitor vs Judge -->
+        <div class="form-group">
+          <label class="form-label">CHOOSE YOUR MISSION DIVISION:</label>
+          <div class="role-selection-grid">
+            <div class="role-choice-card selected competitor" id="roleChoiceCompetitor">
+              <div class="role-choice-title" style="color: var(--emerald);">
+                <span>🎯</span> COMPETITOR
+              </div>
+              <p class="role-choice-desc">
+                Contender for the <strong>Top 3 Prizes</strong> after Dec 12, 2026. Ranked on the Official Grand Prix Board!
+              </p>
+            </div>
+
+            <div class="role-choice-card judge" id="roleChoiceJudge">
+              <div class="role-choice-title" style="color: var(--purple);">
+                <span>⚖️</span> JUDGE / FACULTY
+              </div>
+              <p class="role-choice-desc">
+                Official judge mode. <em>Judges don't win prizes lol</em>, but your scores appear on the Exhibition Board!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avatar Badge Picker -->
+        <div class="form-group">
+          <label class="form-label">PILOT ICON:</label>
+          <div class="avatar-picker-row" id="avatarPickerRow">
+            <div class="avatar-opt selected" data-avatar="🚀">🚀</div>
+            <div class="avatar-opt" data-avatar="🛸">🛸</div>
+            <div class="avatar-opt" data-avatar="🛰️">🛰️</div>
+            <div class="avatar-opt" data-avatar="⚡">⚡</div>
+            <div class="avatar-opt" data-avatar="🪂">🪂</div>
+            <div class="avatar-opt" data-avatar="📡">📡</div>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <button class="btn-launch-game btn-chute" id="btnSaveProfile">
+          <span>💾</span> SAVE PILOT PROFILE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4. GLOBAL LEADERBOARD MODAL ================= -->
+  <div class="modal-backdrop" id="modalLeaderboard">
+    <div class="arcade-modal" style="max-width: 640px;">
+      <div class="modal-header-bar">
+        <h3 class="modal-header-title"><span>🏆</span> ARCADE FLIGHT LEADERBOARD</h3>
+        <button class="btn-close-modal" id="btnCloseLeaderboardModal">&times;</button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- Prize Banner in Modal -->
+        <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: #fef08a;">
+          🎁 <strong>Dec 12 Notice:</strong> Top 3 Competitors claim prizes. Judges display with <strong>[⚖️ JUDGE]</strong> in exhibition.
+        </div>
+
+        <!-- Game Filter Tabs -->
+        <div class="lb-nav-tabs">
+          <button class="lb-tab-btn active" data-lbgame="overall">Grand Prix (All 3)</button>
+          <button class="lb-tab-btn" data-lbgame="chute">01: Chute Pop</button>
+          <button class="lb-tab-btn" data-lbgame="stack">02: Stack-Up</button>
+          <button class="lb-tab-btn" data-lbgame="radar">03: Radar Ring</button>
+        </div>
+
+        <!-- Role Filter Row -->
+        <div class="lb-filter-row">
+          <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">DIVISION:</span>
+          <div class="lb-filter-pills">
+            <button class="lb-filter-btn active" data-lbfilter="all">All Pilots</button>
+            <button class="lb-filter-btn" data-lbfilter="competitor">Competitors Only 🎯</button>
+            <button class="lb-filter-btn" data-lbfilter="judge">Judges ⚖️</button>
+          </div>
+        </div>
+
+        <!-- Leaderboard Rows List -->
+        <div class="lb-list" id="lbRowsContainer">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <!-- Sync & Reset Tools -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; margin-top: 4px;">
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-hud" id="btnExportScores"><span>📋</span> Copy Scores</button>
+            <button class="btn-hud" id="btnImportScores"><span>📥</span> Import Scores</button>
+          </div>
+          <button class="btn-hud" id="btnResetMyScores" style="color: var(--rose);"><span>🔄</span> Reset Local</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 5. MASTER SCRIPT ENGINE ================= -->
+  <script>
+  (function() {
+    'use strict';
+
+    /* =========================================================
+       1. SYNTH AUDIO ENGINE (Self-Contained Web Audio API)
+       ========================================================= */
+    const AudioEngine = {
+      ctx: null,
+      muted: false,
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      toggleMute() {
+        this.muted = !this.muted;
+        return this.muted;
+      },
+
+      playTone(freq, duration, type = 'sine', volume = 0.2, endFreq = null) {
+        if (this.muted || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          const now = this.ctx.currentTime;
+          osc.frequency.setValueAtTime(freq, now);
+          if (endFreq) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(10, endFreq), now + duration);
+          }
+          gain.gain.setValueAtTime(volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration);
+        } catch (e) {}
+      },
+
+      // Sound FX Presets
+      chutePop() {
+        this.playTone(320, 0.22, 'triangle', 0.25, 540);
+      },
+      diveWhoosh() {
+        this.playTone(180, 0.35, 'sawtooth', 0.15, 90);
+      },
+      nearMiss() {
+        this.playTone(880, 0.12, 'sine', 0.25, 1200);
+      },
+      pickupRepair() {
+        this.playTone(440, 0.1, 'sine', 0.2);
+        setTimeout(() => this.playTone(660, 0.12, 'sine', 0.25), 60);
+        setTimeout(() => this.playTone(880, 0.18, 'sine', 0.3), 120);
+      },
+      shieldGet() {
+        this.playTone(523, 0.1, 'square', 0.15);
+        setTimeout(() => this.playTone(659, 0.1, 'square', 0.18), 80);
+        setTimeout(() => this.playTone(783, 0.2, 'square', 0.2), 160);
+      },
+      hitDamage() {
+        this.playTone(180, 0.25, 'sawtooth', 0.35, 60);
+      },
+      crashFail() {
+        // Funny cartoon umbrella boing / crash
+        this.playTone(400, 0.4, 'triangle', 0.4, 110);
+        setTimeout(() => this.playTone(150, 0.3, 'sine', 0.3, 500), 220);
+      },
+      stackDrop() {
+        this.playTone(280, 0.08, 'triangle', 0.2);
+      },
+      sliceLaser() {
+        this.playTone(800, 0.14, 'sawtooth', 0.25, 200);
+      },
+      perfectSnap(streak) {
+        // Harmonic pentatonic pitch progression
+        const scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00];
+        const f = scale[Math.min(streak - 1, scale.length - 1)];
+        this.playTone(f, 0.22, 'sine', 0.35);
+        setTimeout(() => this.playTone(f * 1.5, 0.18, 'triangle', 0.2), 40);
+      },
+      unitSealed() {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          setTimeout(() => this.playTone(freq, 0.25, 'triangle', 0.3), idx * 75);
+        });
+      },
+      radarBounce() {
+        this.playTone(620, 0.12, 'sine', 0.28, 880);
+      },
+      trickshotLaser() {
+        this.playTone(1200, 0.2, 'sawtooth', 0.3, 400);
+      },
+      nodeShatter() {
+        this.playTone(750, 0.15, 'triangle', 0.22, 300);
+      },
+      orbLost() {
+        this.playTone(220, 0.25, 'sawtooth', 0.25, 80);
+      }
+    };
+
+    /* =========================================================
+       2. PERSISTENCE & LEADERBOARD STORE
+       ========================================================= */
+    const STORAGE_KEY_PROFILE = 'cansat_arcade_profile_v2';
+    const STORAGE_KEY_SCORES = 'cansat_arcade_scores_v2';
+
+    // Default seeded community rivals so leaderboard is immediately competitive & realistic
+    const DEFAULT_COMMUNITY_SCORES = [
+      { name: "NOVA-1", initials: "NOV", role: "competitor", avatar: "🚀", chute: 3840, stack: 3450, radar: 4100, date: "2026-11-01" },
+      { name: "PROF. VANCE", initials: "VNC", role: "judge", avatar: "⚖️", chute: 3100, stack: 2900, radar: 3650, date: "2026-11-02" },
+      { name: "LUNAR-X", initials: "LNX", role: "competitor", avatar: "🛰️", chute: 2950, stack: 3200, radar: 3300, date: "2026-11-03" },
+      { name: "DR. ARIA", initials: "ARI", role: "judge", avatar: "⚖️", chute: 2750, stack: 2600, radar: 3100, date: "2026-11-03" },
+      { name: "CYBER-CAN", initials: "CYB", role: "competitor", avatar: "⚡", chute: 2400, stack: 2850, radar: 2900, date: "2026-11-04" },
+      { name: "AERO-KID", initials: "AER", role: "competitor", avatar: "🪂", chute: 2100, stack: 2400, radar: 2500, date: "2026-11-04" }
+    ];
+
+    const StorageManager = {
+      getProfile() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY_PROFILE);
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return {
+          name: "CADET-PILOT",
+          initials: "CAD",
+          role: "competitor", // "competitor" or "judge"
+          avatar: "🚀",
+          bestChute: 0,
+          bestStack: 0,
+          bestRadar: 0
+        };
+      },
+
+      saveProfile(profile) {
+        try {
+          localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
+        } catch (e) {}
+      },
+
+      getLeaderboard() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY_SCORES);
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return JSON.parse(JSON.stringify(DEFAULT_COMMUNITY_SCORES));
+      },
+
+      saveLeaderboard(list) {
+        try {
+          localStorage.setItem(STORAGE_KEY_SCORES, JSON.stringify(list));
+        } catch (e) {}
+      },
+
+      recordScore(gameId, score, details) {
+        const profile = this.getProfile();
+        // Update profile personal best
+        if (gameId === 'chute' && score > profile.bestChute) profile.bestChute = score;
+        if (gameId === 'stack' && score > profile.bestStack) profile.bestStack = score;
+        if (gameId === 'radar' && score > profile.bestRadar) profile.bestRadar = score;
+        this.saveProfile(profile);
+
+        // Update leaderboard
+        const list = this.getLeaderboard();
+        // Find existing entry for this player
+        let entry = list.find(item => item.name.toUpperCase() === profile.name.toUpperCase());
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        if (entry) {
+          entry.role = profile.role;
+          entry.avatar = profile.avatar;
+          entry.initials = profile.initials || profile.name.slice(0, 3).toUpperCase();
+          if (score > (entry[gameId] || 0)) {
+            entry[gameId] = score;
+            entry.date = todayStr;
+          }
+        } else {
+          entry = {
+            name: profile.name,
+            initials: profile.initials || profile.name.slice(0, 3).toUpperCase(),
+            role: profile.role,
+            avatar: profile.avatar,
+            chute: gameId === 'chute' ? score : 0,
+            stack: gameId === 'stack' ? score : 0,
+            radar: gameId === 'radar' ? score : 0,
+            date: todayStr
+          };
+          list.push(entry);
+        }
+
+        this.saveLeaderboard(list);
+        return entry;
+      }
+    };
+
+    /* =========================================================
+       3. AMBIENT BACKGROUND CANVAS
+       ========================================================= */
+    const ambientCanvas = document.getElementById('ambientBg');
+    const ambientCtx = ambientCanvas.getContext('2d');
+    let stars = [];
+
+    function initAmbient() {
+      ambientCanvas.width = window.innerWidth;
+      ambientCanvas.height = window.innerHeight;
+      stars = [];
+      const count = Math.floor((ambientCanvas.width * ambientCanvas.height) / 7500);
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * ambientCanvas.width,
+          y: Math.random() * ambientCanvas.height,
+          radius: Math.random() * 1.5 + 0.5,
+          alpha: Math.random() * 0.7 + 0.3,
+          speed: Math.random() * 0.3 + 0.1
+        });
+      }
+    }
+
+    function renderAmbient() {
+      ambientCtx.clearRect(0, 0, ambientCanvas.width, ambientCanvas.height);
+      ambientCtx.fillStyle = '#ffffff';
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        s.y -= s.speed;
+        if (s.y < 0) s.y = ambientCanvas.height;
+        ambientCtx.globalAlpha = s.alpha;
+        ambientCtx.beginPath();
+        ambientCtx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ambientCtx.fill();
+      }
+      ambientCtx.globalAlpha = 1.0;
+      requestAnimationFrame(renderAmbient);
+    }
+    window.addEventListener('resize', initAmbient);
+    initAmbient();
+    renderAmbient();
+
+    /* =========================================================
+       4. UI VIEW CONTROLLER & PROFILE BINDINGS
+       ========================================================= */
+    let currentProfile = StorageManager.getProfile();
+    let currentActiveGame = null; // 'chute', 'stack', or 'radar'
+    let currentLbGame = 'overall';
+    let currentLbFilter = 'all';
+
+    // DOM Elements
+    const viewHub = document.getElementById('viewHub');
+    const viewGame = document.getElementById('viewGame');
+    const inGameTitle = document.getElementById('inGameTitle');
+    const hudScoreVal = document.getElementById('hudScoreVal');
+    const hudExtraStatLbl = document.getElementById('hudExtraStatLbl');
+    const hudExtraStatVal = document.getElementById('hudExtraStatVal');
+    const hudHealthStatLbl = document.getElementById('hudHealthStatLbl');
+    const hudHealthStatVal = document.getElementById('hudHealthStatVal');
+
+    const btnGoHome = document.getElementById('btnGoHome');
+    const btnLeaveGame = document.getElementById('btnLeaveGame');
+    const btnAudioToggle = document.getElementById('btnAudioToggle');
+    const audioIcon = document.getElementById('audioIcon');
+    const audioLabel = document.getElementById('audioLabel');
+
+    const btnOpenProfile = document.getElementById('btnOpenProfile');
+    const btnEditProfileQuick = document.getElementById('btnEditProfileQuick');
+    const modalProfile = document.getElementById('modalProfile');
+    const btnCloseProfileModal = document.getElementById('btnCloseProfileModal');
+    const btnSaveProfile = document.getElementById('btnSaveProfile');
+    const inputPilotName = document.getElementById('inputPilotName');
+    const roleChoiceCompetitor = document.getElementById('roleChoiceCompetitor');
+    const roleChoiceJudge = document.getElementById('roleChoiceJudge');
+    const avatarPickerRow = document.getElementById('avatarPickerRow');
+
+    const btnOpenLeaderboard = document.getElementById('btnOpenLeaderboard');
+    const btnViewPrizesLeaderboard = document.getElementById('btnViewPrizesLeaderboard');
+    const modalLeaderboard = document.getElementById('modalLeaderboard');
+    const btnCloseLeaderboardModal = document.getElementById('btnCloseLeaderboardModal');
+    const lbRowsContainer = document.getElementById('lbRowsContainer');
+
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    const gameOverHeading = document.getElementById('gameOverHeading');
+    const gameOverScoreVal = document.getElementById('gameOverScoreVal');
+    const gameOverDetailsVal = document.getElementById('gameOverDetailsVal');
+    const btnRestartGame = document.getElementById('btnRestartGame');
+    const btnSubmitScore = document.getElementById('btnSubmitScore');
+
+    const touchControlsLayer = document.getElementById('touchControlsLayer');
+    const touchLeft = document.getElementById('touchLeft');
+    const touchRight = document.getElementById('touchRight');
+    const touchChuteHold = document.getElementById('touchChuteHold');
+    const touchStackTap = document.getElementById('touchStackTap');
+    const touchRadarLeft = document.getElementById('touchRadarLeft');
+    const touchRadarRight = document.getElementById('touchRadarRight');
+
+    const slot0 = document.getElementById('slot0');
+    const slot1 = document.getElementById('slot1');
+    const slot2 = document.getElementById('slot2');
+    let initials = ['A', 'A', 'A'];
+
+    // Update Profile HUD Elements
+    function syncProfileUI() {
+      currentProfile = StorageManager.getProfile();
+      document.getElementById('hudPilotName').textContent = currentProfile.name;
+      document.getElementById('hudAvatarIcon').textContent = currentProfile.avatar;
+      document.getElementById('hubAvatarDisplay').textContent = currentProfile.avatar;
+      document.getElementById('hubProfileName').textContent = currentProfile.name;
+
+      const badge = document.getElementById('hubRoleBadge');
+      const hint = document.getElementById('hubRoleHint');
+      if (currentProfile.role === 'judge') {
+        badge.className = 'role-badge judge';
+        badge.textContent = '⚖️ JUDGE (EXHIBITION)';
+        hint.textContent = 'Official Judge mode: Exhibition scores tracked separately from prizes';
+      } else {
+        badge.className = 'role-badge competitor';
+        badge.textContent = '🎯 COMPETITOR';
+        hint.textContent = 'Eligible for Top 3 Grand Prizes after Dec 12, 2026!';
+      }
+
+      // Best Scores
+      document.getElementById('bestChuteScore').textContent = currentProfile.bestChute.toLocaleString();
+      document.getElementById('bestStackScore').textContent = currentProfile.bestStack.toLocaleString();
+      document.getElementById('bestRadarScore').textContent = currentProfile.bestRadar.toLocaleString();
+
+      // Seed initials
+      if (currentProfile.initials && currentProfile.initials.length >= 3) {
+        initials = currentProfile.initials.toUpperCase().slice(0, 3).split('');
+      } else {
+        const letters = (currentProfile.name || 'CAD').replace(/[^a-zA-Z]/g, '').toUpperCase();
+        initials = (letters + 'AAA').slice(0, 3).split('');
+      }
+      renderInitials();
+    }
+
+    function renderInitials() {
+      slot0.textContent = initials[0];
+      slot1.textContent = initials[1];
+      slot2.textContent = initials[2];
+    }
+
+    // Initials Slot Controls
+    document.querySelectorAll('.slot-arrow').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        AudioEngine.init();
+        AudioEngine.playTone(400, 0.05, 'sine', 0.15);
+        const slotIdx = parseInt(btn.dataset.slot);
+        const dir = parseInt(btn.dataset.dir);
+        let charCode = initials[slotIdx].charCodeAt(0) + dir;
+        if (charCode > 90) charCode = 65; // 'Z' -> 'A'
+        if (charCode < 65) charCode = 90; // 'A' -> 'Z'
+        initials[slotIdx] = String.fromCharCode(charCode);
+        renderInitials();
+      });
+    });
+
+    // Profile Modal
+    function openProfileModal() {
+      inputPilotName.value = currentProfile.name;
+      if (currentProfile.role === 'judge') {
+        roleChoiceJudge.classList.add('selected');
+        roleChoiceCompetitor.classList.remove('selected');
+      } else {
+        roleChoiceCompetitor.classList.add('selected');
+        roleChoiceJudge.classList.remove('selected');
+      }
+      document.querySelectorAll('.avatar-opt').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.avatar === currentProfile.avatar);
+      });
+      modalProfile.classList.add('active');
+    }
+
+    btnOpenProfile.addEventListener('click', () => { AudioEngine.init(); openProfileModal(); });
+    btnEditProfileQuick.addEventListener('click', () => { AudioEngine.init(); openProfileModal(); });
+    btnCloseProfileModal.addEventListener('click', () => modalProfile.classList.remove('active'));
+
+    roleChoiceCompetitor.addEventListener('click', () => {
+      AudioEngine.init();
+      roleChoiceCompetitor.classList.add('selected');
+      roleChoiceJudge.classList.remove('selected');
+    });
+
+    roleChoiceJudge.addEventListener('click', () => {
+      AudioEngine.init();
+      roleChoiceJudge.classList.add('selected');
+      roleChoiceCompetitor.classList.remove('selected');
+    });
+
+    avatarPickerRow.addEventListener('click', (e) => {
+      const opt = e.target.closest('.avatar-opt');
+      if (!opt) return;
+      document.querySelectorAll('.avatar-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+
+    btnSaveProfile.addEventListener('click', () => {
+      AudioEngine.init();
+      const newName = inputPilotName.value.trim().toUpperCase() || 'CADET';
+      const newRole = roleChoiceJudge.classList.contains('selected') ? 'judge' : 'competitor';
+      const selAvatar = document.querySelector('.avatar-opt.selected');
+      const newAvatar = selAvatar ? selAvatar.dataset.avatar : '🚀';
+
+      currentProfile.name = newName;
+      currentProfile.role = newRole;
+      currentProfile.avatar = newAvatar;
+      currentProfile.initials = initials.join('');
+      StorageManager.saveProfile(currentProfile);
+
+      modalProfile.classList.remove('active');
+      syncProfileUI();
+      AudioEngine.shieldGet();
+    });
+
+    // Audio Toggle
+    btnAudioToggle.addEventListener('click', () => {
+      AudioEngine.init();
+      const isMuted = AudioEngine.toggleMute();
+      audioIcon.textContent = isMuted ? '🔇' : '🔊';
+      audioLabel.textContent = isMuted ? 'MUTED' : 'SOUND ON';
+    });
+
+    // Leaderboard Modal
+    function openLeaderboardModal(tab = 'overall') {
+      currentLbGame = tab;
+      document.querySelectorAll('.lb-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.lbgame === tab);
+      });
+      renderLeaderboard();
+      modalLeaderboard.classList.add('active');
+    }
+
+    btnOpenLeaderboard.addEventListener('click', () => { AudioEngine.init(); openLeaderboardModal(); });
+    btnViewPrizesLeaderboard.addEventListener('click', () => { AudioEngine.init(); openLeaderboardModal(); });
+    btnCloseLeaderboardModal.addEventListener('click', () => modalLeaderboard.classList.remove('active'));
+
+    document.querySelectorAll('.lb-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        AudioEngine.init();
+        document.querySelectorAll('.lb-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentLbGame = btn.dataset.lbgame;
+        renderLeaderboard();
+      });
+    });
+
+    document.querySelectorAll('.lb-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        AudioEngine.init();
+        document.querySelectorAll('.lb-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentLbFilter = btn.dataset.lbfilter;
+        renderLeaderboard();
+      });
+    });
+
+    function renderLeaderboard() {
+      const list = StorageManager.getLeaderboard();
+
+      // Calculate overall combined scores
+      const processed = list.map(item => {
+        const c = item.chute || 0;
+        const s = item.stack || 0;
+        const r = item.radar || 0;
+        const total = c + s + r;
+        return {
+          ...item,
+          totalScore: total,
+          scoreForSort: currentLbGame === 'overall' ? total : (item[currentLbGame] || 0)
+        };
+      });
+
+      // Filter by role if requested
+      let filtered = processed;
+      if (currentLbFilter === 'competitor') {
+        filtered = processed.filter(x => x.role === 'competitor');
+      } else if (currentLbFilter === 'judge') {
+        filtered = processed.filter(x => x.role === 'judge');
+      }
+
+      // Sort descending
+      filtered.sort((a, b) => b.scoreForSort - a.scoreForSort);
+
+      lbRowsContainer.innerHTML = '';
+      if (filtered.length === 0) {
+        lbRowsContainer.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 20px; font-family: var(--font-mono);">No pilot records found for this filter.</div>';
+        return;
+      }
+
+      filtered.forEach((entry, idx) => {
+        const rank = idx + 1;
+        const isTop1 = rank === 1;
+        const isTop2 = rank === 2;
+        const isTop3 = rank === 3;
+        const isMe = entry.name.toUpperCase() === currentProfile.name.toUpperCase();
+
+        const row = document.createElement('div');
+        row.className = `lb-row ${isTop1 ? 'top-1' : isTop2 ? 'top-2' : isTop3 ? 'top-3' : ''} ${isMe ? 'is-me' : ''}`;
+
+        const roleBadge = entry.role === 'judge'
+          ? `<span class="role-badge judge" style="font-size:0.6rem;">⚖️ JUDGE</span>`
+          : (rank <= 3 ? `<span class="role-badge competitor" style="font-size:0.6rem;">PRIZE ELIGIBLE 🎁</span>` : `<span class="role-badge competitor" style="font-size:0.6rem;">PILOT</span>`);
+
+        const displayScore = entry.scoreForSort.toLocaleString();
+        const details = currentLbGame === 'overall'
+          ? `Chute: ${entry.chute || 0} • Stack: ${entry.stack || 0} • Radar: ${entry.radar || 0}`
+          : `Date: ${entry.date || '2026-11'}`;
+
+        row.innerHTML = `
+          <div class="lb-left">
+            <span class="lb-rank">#${rank}</span>
+            <span style="font-size: 1.25rem;">${entry.avatar || '🚀'}</span>
+            <div class="lb-info">
+              <span class="lb-name">
+                ${escapeHtml(entry.name)} (${escapeHtml(entry.initials || 'AAA')})
+                ${roleBadge}
+              </span>
+              <span class="lb-details">${details}</span>
+            </div>
+          </div>
+          <div class="lb-score">${displayScore}</div>
+        `;
+        lbRowsContainer.appendChild(row);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]);
+    }
+
+    document.getElementById('btnExportScores').addEventListener('click', () => {
+      const data = JSON.stringify(StorageManager.getLeaderboard(), null, 2);
+      navigator.clipboard.writeText(data).then(() => {
+        alert("Leaderboard scores copied to clipboard! You can share this text with your friends or judges.");
+      }).catch(() => {
+        prompt("Copy your leaderboard data:", data);
+      });
+    });
+
+    document.getElementById('btnImportScores').addEventListener('click', () => {
+      const raw = prompt("Paste the shared scores JSON to import/merge:");
+      if (!raw) return;
+      try {
+        const imported = JSON.parse(raw);
+        if (Array.isArray(imported)) {
+          const current = StorageManager.getLeaderboard();
+          imported.forEach(imp => {
+            if (!imp.name) return;
+            const existing = current.find(c => c.name.toUpperCase() === imp.name.toUpperCase());
+            if (existing) {
+              existing.chute = Math.max(existing.chute || 0, imp.chute || 0);
+              existing.stack = Math.max(existing.stack || 0, imp.stack || 0);
+              existing.radar = Math.max(existing.radar || 0, imp.radar || 0);
+              if (imp.role) existing.role = imp.role;
+              if (imp.avatar) existing.avatar = imp.avatar;
+            } else {
+              current.push(imp);
+            }
+          });
+          StorageManager.saveLeaderboard(current);
+          renderLeaderboard();
+          alert("Scores imported and merged successfully!");
+        } else {
+          alert("Invalid scores format. Please paste valid leaderboard JSON.");
+        }
+      } catch (err) {
+        alert("Could not parse JSON scores: " + err.message);
+      }
+    });
+
+    document.getElementById('btnResetMyScores').addEventListener('click', () => {
+      if (confirm("Reset local community scores back to default?")) {
+        localStorage.removeItem(STORAGE_KEY_SCORES);
+        renderLeaderboard();
+      }
+    });
+
+    // Navigation switches
+    btnGoHome.addEventListener('click', exitGameToHub);
+    btnLeaveGame.addEventListener('click', exitGameToHub);
+
+    function exitGameToHub() {
+      if (activeGameInstance && activeGameInstance.destroy) {
+        activeGameInstance.destroy();
+      }
+      activeGameInstance = null;
+      currentActiveGame = null;
+      viewGame.classList.remove('active');
+      viewHub.classList.add('active');
+      gameOverOverlay.classList.remove('active');
+      touchControlsLayer.classList.remove('visible');
+      syncProfileUI();
+    }
+
+    function launchGame(gameId) {
+      AudioEngine.init();
+      currentActiveGame = gameId;
+      viewHub.classList.remove('active');
+      viewGame.classList.add('active');
+      gameOverOverlay.classList.remove('active');
+
+      // Adjust Canvas size for crisp device pixel ratio
+      resizeGameCanvas();
+
+      // Setup touch controls visibility
+      touchControlsLayer.classList.add('visible');
+      touchLeft.style.display = gameId === 'chute' ? 'flex' : 'none';
+      touchRight.style.display = gameId === 'chute' ? 'flex' : 'none';
+      touchChuteHold.style.display = gameId === 'chute' ? 'flex' : 'none';
+      touchStackTap.style.display = gameId === 'stack' ? 'flex' : 'none';
+      touchRadarLeft.style.display = gameId === 'radar' ? 'flex' : 'none';
+      touchRadarRight.style.display = gameId === 'radar' ? 'flex' : 'none';
+
+      if (gameId === 'chute') {
+        inGameTitle.textContent = "01: CANSAT CHUTE POP!";
+        hudExtraStatLbl.textContent = "COMBO";
+        hudHealthStatLbl.textContent = "CHUTE";
+        activeGameInstance = new ChutePopGame(gameCanvas);
+      } else if (gameId === 'stack') {
+        inGameTitle.textContent = "02: CANSAT STACK-UP!";
+        hudExtraStatLbl.textContent = "STREAK";
+        hudHealthStatLbl.textContent = "SEALED";
+        activeGameInstance = new StackUpGame(gameCanvas);
+      } else if (gameId === 'radar') {
+        inGameTitle.textContent = "03: CANSAT RADAR RING";
+        hudExtraStatLbl.textContent = "ORBS";
+        hudHealthStatLbl.textContent = "SIGNALS";
+        activeGameInstance = new RadarRingGame(gameCanvas);
+      }
+      activeGameInstance.start();
+    }
+
+    document.getElementById('btnPlayChute').addEventListener('click', () => launchGame('chute'));
+    document.getElementById('btnPlayStack').addEventListener('click', () => launchGame('stack'));
+    document.getElementById('btnPlayRadar').addEventListener('click', () => launchGame('radar'));
+
+    let activeGameInstance = null;
+    const gameCanvas = document.getElementById('gameCanvas');
+    const gameCanvasWrap = document.getElementById('gameCanvasWrap');
+
+    function resizeGameCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const wrapWidth = gameCanvasWrap.clientWidth;
+      const wrapHeight = gameCanvasWrap.clientHeight;
+      
+      // Target aspect ratio roughly 9:16 or centered vertical arcade cabinet
+      let width = Math.min(wrapWidth, 480);
+      let height = Math.min(wrapHeight, 800);
+      if (width < 320) width = 320;
+
+      gameCanvas.width = width * dpr;
+      gameCanvas.height = height * dpr;
+      gameCanvas.style.width = width + 'px';
+      gameCanvas.style.height = height + 'px';
+
+      const ctx = gameCanvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { width, height };
+    }
+
+    window.addEventListener('resize', () => {
+      if (currentActiveGame && activeGameInstance) {
+        resizeGameCanvas();
+        if (activeGameInstance.onResize) activeGameInstance.onResize();
+      }
+    });
+
+    // Game Over Handler
+    let lastEndedScore = 0;
+    let lastEndedDetails = "";
+
+    function triggerGameOver(score, heading, details) {
+      lastEndedScore = score;
+      lastEndedDetails = details;
+      gameOverHeading.textContent = heading;
+      gameOverScoreVal.textContent = score.toLocaleString();
+      gameOverDetailsVal.textContent = details;
+      gameOverOverlay.classList.add('active');
+      AudioEngine.crashFail();
+    }
+
+    btnRestartGame.addEventListener('click', () => {
+      AudioEngine.init();
+      gameOverOverlay.classList.remove('active');
+      if (currentActiveGame) {
+        launchGame(currentActiveGame);
+      }
+    });
+
+    btnSubmitScore.addEventListener('click', () => {
+      AudioEngine.init();
+      currentProfile.initials = initials.join('');
+      StorageManager.saveProfile(currentProfile);
+      StorageManager.recordScore(currentActiveGame, lastEndedScore, lastEndedDetails);
+      gameOverOverlay.classList.remove('active');
+      openLeaderboardModal(currentActiveGame);
+      exitGameToHub();
+    });
+
+
+    /* =========================================================
+       5. GAME 1: CANSAT: CHUTE POP! (Vertical Endless Descender)
+       ========================================================= */
+    class ChutePopGame {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.running = false;
+        this.score = 0;
+        this.scrolledPixels = 0;
+        this.combo = 1;
+        this.chuteOpen = false;
+        this.fallSpeed = 3.0;
+        this.maxDiveSpeed = 10.5;
+        this.glideSpeed = 2.4;
+        this.gravity = 0.22;
+        this.chuteDrag = 0.88;
+
+        // Player CanSat
+        this.player = {
+          x: 240,
+          y: 180, // Stationary 25% from top
+          width: 28,
+          height: 48,
+          vx: 0,
+          accel: 0.9,
+          friction: 0.86,
+          tilt: 0,
+          chuteScale: 0,
+          torn: false,
+          invincibleTimer: 0,
+          shieldTimer: 0
+        };
+
+        // Inputs
+        this.input = { left: false, right: false, chuteHold: false };
+
+        // Game Entities
+        this.barricades = [];
+        this.pickups = [];
+        this.particles = [];
+        this.floatingTexts = [];
+        this.clouds = [];
+        this.altitude = 0; // in meters
+
+        // Barricade spawner
+        this.nextSpawnDist = 320;
+        this.distSinceSpawn = 0;
+        this.lastGapCenter = 240;
+
+        // Visual juice
+        this.screenShake = 0;
+        this.windAngle = 0;
+        this.isCrashing = false;
+        this.crashTimer = 0;
+        this.umbrellaScale = 0;
+
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        this.onKeyDown = (e) => {
+          if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.input.left = true;
+          if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.input.right = true;
+          if (e.code === 'Space') {
+            e.preventDefault();
+            this.setChute(true);
+          }
+        };
+
+        this.onKeyUp = (e) => {
+          if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.input.left = false;
+          if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.input.right = false;
+          if (e.code === 'Space') {
+            this.setChute(false);
+          }
+        };
+
+        // Pointer controls on canvas (drag left/right, click hold chute)
+        this.onPointerDown = (e) => {
+          this.setChute(true);
+          this.updatePointerX(e);
+        };
+        this.onPointerMove = (e) => {
+          if (e.buttons > 0) this.updatePointerX(e);
+        };
+        this.onPointerUp = () => this.setChute(false);
+
+        window.addEventListener('keydown', this.onKeyDown);
+        window.addEventListener('keyup', this.onKeyUp);
+        this.canvas.addEventListener('pointerdown', this.onPointerDown);
+        window.addEventListener('pointermove', this.onPointerMove);
+        window.addEventListener('pointerup', this.onPointerUp);
+
+        // Mobile touch buttons
+        this.bindTouchBtn(touchLeft, (pressed) => this.input.left = pressed);
+        this.bindTouchBtn(touchRight, (pressed) => this.input.right = pressed);
+        this.bindTouchBtn(touchChuteHold, (pressed) => this.setChute(pressed));
+      }
+
+      bindTouchBtn(btn, cb) {
+        const start = (e) => { e.preventDefault(); cb(true); btn.classList.add('pressed'); };
+        const end = (e) => { e.preventDefault(); cb(false); btn.classList.remove('pressed'); };
+        btn.addEventListener('pointerdown', start);
+        btn.addEventListener('pointerup', end);
+        btn.addEventListener('pointercancel', end);
+      }
+
+      updatePointerX(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const clientX = (e.clientX - rect.left) * (this.logicalWidth / rect.width);
+        const diff = clientX - this.player.x;
+        this.player.vx += Math.sign(diff) * Math.min(Math.abs(diff) * 0.1, 1.8);
+      }
+
+      setChute(open) {
+        if (open && !this.chuteOpen) {
+          AudioEngine.chutePop();
+          this.combo = 1; // Opening chute resets combo to x1 per requirements
+        } else if (!open && this.chuteOpen) {
+          AudioEngine.diveWhoosh();
+        }
+        this.chuteOpen = open;
+        this.input.chuteHold = open;
+      }
+
+      start() {
+        this.running = true;
+        this.onResize();
+        this.initClouds();
+        this.loop();
+      }
+
+      onResize() {
+        const w = parseFloat(this.canvas.style.width);
+        const h = parseFloat(this.canvas.style.height);
+        this.logicalWidth = w || 480;
+        this.logicalHeight = h || 720;
+        this.player.y = this.logicalHeight * 0.25; // Locked 25% from top
+      }
+
+      initClouds() {
+        this.clouds = [];
+        for (let i = 0; i < 8; i++) {
+          this.clouds.push({
+            x: Math.random() * this.logicalWidth,
+            y: Math.random() * this.logicalHeight,
+            radius: Math.random() * 45 + 30,
+            speedMul: Math.random() * 0.4 + 0.6,
+            alpha: Math.random() * 0.35 + 0.15
+          });
+        }
+      }
+
+      destroy() {
+        this.running = false;
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('keyup', this.onKeyUp);
+        this.canvas.removeEventListener('pointerdown', this.onPointerDown);
+        window.removeEventListener('pointermove', this.onPointerMove);
+        window.removeEventListener('pointerup', this.onPointerUp);
+      }
+
+      loop() {
+        if (!this.running) return;
+        this.update();
+        this.render();
+        requestAnimationFrame(() => this.loop());
+      }
+
+      update() {
+        if (this.isCrashing) {
+          this.crashTimer--;
+          this.player.tilt += 0.35; // Comical spin
+          this.player.y += 2.0; // Tumbling downward
+          this.umbrellaScale = Math.min(1.0, this.umbrellaScale + 0.15);
+          this.fallSpeed = Math.max(0.5, this.fallSpeed * 0.94);
+          this.updateParticles();
+          if (this.crashTimer <= 0) {
+            this.running = false;
+            triggerGameOver(
+              this.score,
+              "CANSAT CRASHED!",
+              `Alt: ${this.altitude.toLocaleString()}m • Combo: x${this.combo}`
+            );
+          }
+          return;
+        }
+
+        // Fall Speed & Dual State Physics
+        if (this.chuteOpen) {
+          this.fallSpeed = Math.max(this.glideSpeed, this.fallSpeed * this.chuteDrag);
+          this.player.chuteScale = Math.min(1.0, this.player.chuteScale + 0.18);
+        } else {
+          this.fallSpeed = Math.min(this.maxDiveSpeed, this.fallSpeed + this.gravity);
+          this.player.chuteScale = Math.max(0.0, this.player.chuteScale - 0.25);
+        }
+
+        // Altitude & Score accumulation (+1 pt per 10 px scrolled)
+        this.scrolledPixels += this.fallSpeed;
+        this.altitude = Math.floor(this.scrolledPixels * 0.15); // Simulated meters
+        if (this.scrolledPixels >= 10) {
+          const pts = Math.floor(this.scrolledPixels / 10);
+          this.score += pts;
+          this.scrolledPixels %= 10;
+        }
+
+        // Horizontal Movement
+        let steerPower = this.player.accel;
+        if (this.player.torn) steerPower *= 0.75; // Reduced steering on torn chute
+
+        if (this.input.left) this.player.vx -= steerPower;
+        if (this.input.right) this.player.vx += steerPower;
+
+        // Mild wind drift in chute open state
+        if (this.chuteOpen) {
+          this.windAngle += 0.03;
+          const windDrift = Math.sin(this.windAngle) * 0.45;
+          this.player.vx += windDrift;
+        }
+
+        this.player.vx *= this.player.friction;
+        this.player.x += this.player.vx;
+        this.player.tilt = this.player.vx * 0.06;
+
+        // Clamp inside screen
+        const halfW = this.player.width * 0.5;
+        if (this.player.x < halfW) {
+          this.player.x = halfW;
+          this.player.vx = 0;
+        }
+        if (this.player.x > this.logicalWidth - halfW) {
+          this.player.x = this.logicalWidth - halfW;
+          this.player.vx = 0;
+        }
+
+        // Timers
+        if (this.player.invincibleTimer > 0) this.player.invincibleTimer--;
+        if (this.player.shieldTimer > 0) this.player.shieldTimer--;
+        if (this.screenShake > 0) this.screenShake--;
+
+        // Particles
+        this.updateParticles();
+
+        // Clouds scroll upward
+        this.clouds.forEach(c => {
+          c.y -= this.fallSpeed * c.speedMul;
+          if (c.y < -c.radius * 2) {
+            c.y = this.logicalHeight + c.radius * 2;
+            c.x = Math.random() * this.logicalWidth;
+          }
+        });
+
+        // Barricade Spawning
+        this.distSinceSpawn += this.fallSpeed;
+        if (this.distSinceSpawn >= this.nextSpawnDist) {
+          this.spawnBarricade();
+          this.distSinceSpawn = 0;
+          this.nextSpawnDist = Math.random() * 80 + 260;
+        }
+
+        // Barricade & Pickup Updates
+        this.updateBarricades();
+        this.updatePickups();
+
+        // Update Floating Scores
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = this.floatingTexts[i];
+          ft.y -= 1.2;
+          ft.alpha -= 0.02;
+          if (ft.alpha <= 0) this.floatingTexts.splice(i, 1);
+        }
+
+        // Update HUD
+        hudScoreVal.textContent = this.score.toLocaleString();
+        hudExtraStatVal.textContent = `x${this.combo}`;
+        if (this.player.shieldTimer > 0) {
+          hudHealthStatVal.textContent = `SHIELD (${Math.ceil(this.player.shieldTimer / 60)}s)`;
+          hudHealthStatVal.style.color = 'var(--cyan)';
+        } else if (this.player.torn) {
+          hudHealthStatVal.textContent = `TORN ⚠️`;
+          hudHealthStatVal.style.color = 'var(--rose)';
+        } else {
+          hudHealthStatVal.textContent = `INTACT ✓`;
+          hudHealthStatVal.style.color = 'var(--emerald)';
+        }
+      }
+
+      spawnBarricade() {
+        const alt = this.altitude;
+        let gapRatio = 0.35; // Level 1 (0 - 500m)
+        let type = 'clouds';
+
+        if (alt >= 1500) {
+          gapRatio = 0.18; // Level 3 (1500m+)
+          type = 'drones';
+        } else if (alt >= 500) {
+          gapRatio = 0.25; // Level 2 (500 - 1500m)
+          type = 'beams';
+        }
+
+        const gapWidth = Math.max(90, this.logicalWidth * gapRatio);
+        // Constrain gap center relative to previous gap to prevent impossible sharp jumps
+        const maxDelta = 140;
+        let minX = Math.max(gapWidth * 0.5 + 20, this.lastGapCenter - maxDelta);
+        let maxX = Math.min(this.logicalWidth - gapWidth * 0.5 - 20, this.lastGapCenter + maxDelta);
+        const gapCenter = minX + Math.random() * (maxX - minX);
+        this.lastGapCenter = gapCenter;
+
+        const leftEdge = gapCenter - gapWidth * 0.5;
+        const rightEdge = gapCenter + gapWidth * 0.5;
+
+        this.barricades.push({
+          y: this.logicalHeight + 40,
+          height: 24,
+          gapLeft: leftEdge,
+          gapRight: rightEdge,
+          gapCenter: gapCenter,
+          gapWidth: gapWidth,
+          type: type,
+          passed: false,
+          shiftSpeed: type === 'drones' ? (Math.random() > 0.5 ? 1.2 : -1.2) : 0
+        });
+
+        // Occasionally spawn Duct Tape or Solar Battery pickup between barricades
+        if (Math.random() < 0.35) {
+          const pickupType = (this.player.torn || Math.random() < 0.6) ? 'tape' : 'shield';
+          this.pickups.push({
+            x: gapCenter + (Math.random() * 60 - 30),
+            y: this.logicalHeight + 160,
+            radius: 14,
+            type: pickupType,
+            rotation: 0
+          });
+        }
+      }
+
+      updateBarricades() {
+        const p = this.player;
+        // Hitbox roughly 20% smaller than visual canister for forgiving play
+        const hitW = p.width * 0.8;
+        const hitH = p.height * 0.8;
+        const hitL = p.x - hitW * 0.5;
+        const hitR = p.x + hitW * 0.5;
+        const hitT = p.y - hitH * 0.5;
+        const hitB = p.y + hitH * 0.5;
+
+        // Near-Miss Box: 15px wider than CanSat
+        const nearL = p.x - (p.width * 0.5 + 15);
+        const nearR = p.x + (p.width * 0.5 + 15);
+
+        for (let i = this.barricades.length - 1; i >= 0; i--) {
+          const b = this.barricades[i];
+          b.y -= this.fallSpeed;
+
+          // Horizontal oscillation for Level 3 drones
+          if (b.shiftSpeed !== 0) {
+            b.gapCenter += b.shiftSpeed;
+            if (b.gapCenter < b.gapWidth * 0.6 || b.gapCenter > this.logicalWidth - b.gapWidth * 0.6) {
+              b.shiftSpeed *= -1;
+            }
+            b.gapLeft = b.gapCenter - b.gapWidth * 0.5;
+            b.gapRight = b.gapCenter + b.gapWidth * 0.5;
+          }
+
+          const barT = b.y - b.height * 0.5;
+          const barB = b.y + b.height * 0.5;
+
+          // Check if vertically aligned with player
+          const vOverlap = hitB > barT && hitT < barB;
+
+          if (vOverlap && p.invincibleTimer <= 0 && p.shieldTimer <= 0) {
+            // Check collision with Left segment or Right segment
+            const hitLeftSeg = hitL < b.gapLeft;
+            const hitRightSeg = hitR > b.gapRight;
+
+            if (hitLeftSeg || hitRightSeg) {
+              this.handleHit();
+            }
+          }
+
+          // Pass Detection & Near-Miss
+          if (!b.passed && b.y < p.y) {
+            b.passed = true;
+
+            // Score calculation for passing gap
+            if (this.chuteOpen) {
+              this.score += 20;
+              this.addFloatingText("+20 GLIDE", p.x, p.y - 30, '#00f2fe');
+            } else {
+              // Free-fall dive pass!
+              const pts = 100 * this.combo;
+              this.score += pts;
+              this.addFloatingText(`+${pts} DIVE x${this.combo}!`, p.x, p.y - 30, '#fbbf24');
+              this.combo = Math.min(8, this.combo + 1);
+              AudioEngine.nearMiss();
+            }
+
+            // Near-Miss Detection: within 15px of gap edge without hitting
+            const nearLeftEdge = Math.abs(hitL - b.gapLeft) <= 15;
+            const nearRightEdge = Math.abs(hitR - b.gapRight) <= 15;
+            if (nearLeftEdge || nearRightEdge) {
+              this.score += 50;
+              this.addFloatingText("+50 NEAR-MISS!", p.x, p.y - 50, '#f59e0b');
+              AudioEngine.nearMiss();
+            }
+          }
+
+          // Remove once off top of screen
+          if (b.y < -60) {
+            this.barricades.splice(i, 1);
+          }
+        }
+      }
+
+      handleHit() {
+        this.screenShake = 16;
+        AudioEngine.hitDamage();
+
+        if (!this.player.torn) {
+          // 1st Hit: Tears parachute, grants 1.5s invincibility (90 frames at 60fps)
+          this.player.torn = true;
+          this.player.invincibleTimer = 90;
+          this.addFloatingText("CHUTE TORN! ⚠️", this.player.x, this.player.y - 40, '#f43f5e');
+          // Spawn rip debris
+          for (let i = 0; i < 15; i++) {
+            this.particles.push({
+              x: this.player.x,
+              y: this.player.y - 30,
+              vx: (Math.random() - 0.5) * 6,
+              vy: (Math.random() - 0.5) * 6,
+              radius: Math.random() * 3 + 2,
+              color: '#f43f5e',
+              life: 40
+            });
+          }
+        } else {
+          // 2nd Hit while torn: Cartoon Crash Animation!
+          this.isCrashing = true;
+          this.crashTimer = 75; // 1.25s cartoon crash delay
+          this.umbrellaScale = 0;
+          this.screenShake = 25;
+          AudioEngine.crashFail();
+          this.addFloatingText("BACKUP UMBRELLA POP! 💥", this.player.x, this.player.y - 45, '#f43f5e');
+          for (let i = 0; i < 20; i++) {
+            this.particles.push({
+              x: this.player.x,
+              y: this.player.y - 20,
+              vx: (Math.random() - 0.5) * 8,
+              vy: (Math.random() - 0.5) * 8,
+              radius: Math.random() * 4 + 2,
+              color: i % 2 === 0 ? '#f43f5e' : '#fbbf24',
+              life: 50
+            });
+          }
+        }
+      }
+
+      updatePickups() {
+        const p = this.player;
+        for (let i = this.pickups.length - 1; i >= 0; i--) {
+          const item = this.pickups[i];
+          item.y -= this.fallSpeed;
+          item.rotation += 0.05;
+
+          // Check pickup collision
+          const dx = item.x - p.x;
+          const dy = item.y - p.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < item.radius + p.width * 0.5) {
+            if (item.type === 'tape') {
+              p.torn = false;
+              this.score += 150;
+              this.addFloatingText("+150 CHUTE REPAIRED! 🩹", p.x, p.y - 30, '#10b981');
+              AudioEngine.pickupRepair();
+            } else if (item.type === 'shield') {
+              p.shieldTimer = 360; // 6 seconds invincibility
+              this.score += 200;
+              this.addFloatingText("+200 SOLAR SHIELD! ⚡", p.x, p.y - 30, '#00f2fe');
+              AudioEngine.shieldGet();
+            }
+            this.pickups.splice(i, 1);
+            continue;
+          }
+
+          if (item.y < -40) this.pickups.splice(i, 1);
+        }
+      }
+
+      updateParticles() {
+        // Free-fall speed lines along edges
+        if (!this.chuteOpen && this.fallSpeed > 5.5) {
+          if (Math.random() < 0.6) {
+            this.particles.push({
+              x: Math.random() < 0.5 ? Math.random() * 40 : this.logicalWidth - Math.random() * 40,
+              y: this.logicalHeight,
+              vx: 0,
+              vy: -this.fallSpeed * 1.6,
+              radius: 1.5,
+              length: Math.random() * 25 + 15,
+              color: '#ffffff',
+              life: 30
+            });
+          }
+        }
+
+        // Particle update loop
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const pt = this.particles[i];
+          pt.x += pt.vx;
+          pt.y += pt.vy;
+          pt.life--;
+          if (pt.life <= 0) this.particles.splice(i, 1);
+        }
+      }
+
+      addFloatingText(text, x, y, color = '#fff') {
+        this.floatingTexts.push({ text, x, y, color, alpha: 1.0 });
+      }
+
+      render() {
+        const ctx = this.ctx;
+        ctx.save();
+
+        // Screen Shake
+        if (this.screenShake > 0) {
+          const shakeMag = this.screenShake * 0.8;
+          ctx.translate((Math.random() - 0.5) * shakeMag, (Math.random() - 0.5) * shakeMag);
+        }
+
+        // 1. Dynamic Background Gradient: Deep Space -> Stratosphere -> Sunset -> Desert
+        this.drawBackgroundGradient(ctx);
+
+        // 2. Ambient Clouds
+        this.drawClouds(ctx);
+
+        // 3. Speed Lines & Particles
+        this.drawParticles(ctx);
+
+        // 4. Barricades
+        this.drawBarricades(ctx);
+
+        // 5. Pickups
+        this.drawPickups(ctx);
+
+        // 6. Player CanSat & Parachute
+        this.drawCanSat(ctx);
+
+        // 7. Floating Text Popups
+        this.drawFloatingTexts(ctx);
+
+        ctx.restore();
+      }
+
+      drawBackgroundGradient(ctx) {
+        const alt = this.altitude;
+        const grad = ctx.createLinearGradient(0, 0, 0, this.logicalHeight);
+
+        if (alt < 600) {
+          // Upper Stratosphere (Deep Space Navy to Indigo)
+          grad.addColorStop(0, '#020617');
+          grad.addColorStop(1, '#0f172a');
+        } else if (alt < 1400) {
+          // Mid Atmosphere (Electric Violet to Stratosphere Blue)
+          grad.addColorStop(0, '#090d1e');
+          grad.addColorStop(1, '#1e1b4b');
+        } else if (alt < 2400) {
+          // Sunset Horizon (Crimson to Fiery Orange)
+          grad.addColorStop(0, '#1c1917');
+          grad.addColorStop(0.6, '#431407');
+          grad.addColorStop(1, '#9a3412');
+        } else {
+          // Desert Landing Terrain (Golden Tan to Dust Amber)
+          grad.addColorStop(0, '#451a03');
+          grad.addColorStop(0.7, '#78350f');
+          grad.addColorStop(1, '#b45309');
+        }
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, this.logicalWidth, this.logicalHeight);
+      }
+
+      drawClouds(ctx) {
+        ctx.save();
+        this.clouds.forEach(c => {
+          ctx.fillStyle = `rgba(255, 255, 255, ${c.alpha})`;
+          ctx.beginPath();
+          ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
+          ctx.arc(c.x + c.radius * 0.6, c.y - 10, c.radius * 0.7, 0, Math.PI * 2);
+          ctx.arc(c.x - c.radius * 0.6, c.y + 5, c.radius * 0.6, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      }
+
+      drawParticles(ctx) {
+        ctx.save();
+        this.particles.forEach(pt => {
+          ctx.fillStyle = pt.color;
+          if (pt.length) {
+            ctx.strokeStyle = pt.color;
+            ctx.lineWidth = pt.radius;
+            ctx.beginPath();
+            ctx.moveTo(pt.x, pt.y);
+            ctx.lineTo(pt.x, pt.y + pt.length);
+            ctx.stroke();
+          } else {
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+        ctx.restore();
+      }
+
+      drawBarricades(ctx) {
+        ctx.save();
+        this.barricades.forEach(b => {
+          const y = b.y;
+          const h = b.height;
+
+          if (b.type === 'clouds') {
+            // Level 1: Weather Balloons and Fluffy Cloud Bars
+            ctx.fillStyle = 'rgba(226, 232, 240, 0.85)';
+            // Left segment
+            ctx.fillRect(0, y - h * 0.5, b.gapLeft, h);
+            // Right segment
+            ctx.fillRect(b.gapRight, y - h * 0.5, this.logicalWidth - b.gapRight, h);
+
+            // Weather balloon bobbing at gap edge
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(b.gapLeft - 10, y, 12, 0, Math.PI * 2);
+            ctx.arc(b.gapRight + 10, y, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+          } else if (b.type === 'beams') {
+            // Level 2: Construction Girders with hazard stripes
+            this.drawHazardBeam(ctx, 0, y - h * 0.5, b.gapLeft, h);
+            this.drawHazardBeam(ctx, b.gapRight, y - h * 0.5, this.logicalWidth - b.gapRight, h);
+
+          } else {
+            // Level 3: Fast Patrol Drone lasers & turbine zones
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+            ctx.fillRect(0, y - h * 0.5, b.gapLeft, h);
+            ctx.fillRect(b.gapRight, y - h * 0.5, this.logicalWidth - b.gapRight, h);
+
+            // Neon warning edge
+            ctx.strokeStyle = '#00f2fe';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(0, y - h * 0.5, b.gapLeft, h);
+            ctx.strokeRect(b.gapRight, y - h * 0.5, this.logicalWidth - b.gapRight, h);
+
+            // Glowing drone lights
+            ctx.fillStyle = '#f43f5e';
+            ctx.beginPath();
+            ctx.arc(b.gapLeft - 8, y, 6, 0, Math.PI * 2);
+            ctx.arc(b.gapRight + 8, y, 6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Safe Gap Neon Guides
+          ctx.fillStyle = 'rgba(0, 242, 254, 0.15)';
+          ctx.fillRect(b.gapLeft, y - 2, b.gapWidth, 4);
+        });
+        ctx.restore();
+      }
+
+      drawHazardBeam(ctx, x, y, w, h) {
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x, y, w, h);
+        // Diagonal stripes
+        ctx.fillStyle = '#111827';
+        for (let sx = x; sx < x + w; sx += 20) {
+          ctx.beginPath();
+          ctx.moveTo(sx, y);
+          ctx.lineTo(sx + 10, y);
+          ctx.lineTo(sx + 10 - h, y + h);
+          ctx.lineTo(sx - h, y + h);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      drawPickups(ctx) {
+        ctx.save();
+        this.pickups.forEach(item => {
+          ctx.save();
+          ctx.translate(item.x, item.y);
+          ctx.rotate(item.rotation);
+
+          if (item.type === 'tape') {
+            // Silver Duct Tape Roll
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.arc(0, 0, item.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.arc(0, 0, item.radius * 0.45, 0, Math.PI * 2);
+            ctx.fill();
+            // Cyan repair cross
+            ctx.fillStyle = '#00f2fe';
+            ctx.fillRect(-3, -8, 6, 16);
+            ctx.fillRect(-8, -3, 16, 6);
+          } else {
+            // Solar Battery Shield Ring
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(0, 0, item.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            // Core spark
+            ctx.fillStyle = '#00f2fe';
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+        });
+        ctx.restore();
+      }
+
+      drawCanSat(ctx) {
+        const p = this.player;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.tilt);
+
+        // Blinking invincibility frames
+        if (p.invincibleTimer > 0 && Math.floor(p.invincibleTimer / 4) % 2 === 0) {
+          ctx.globalAlpha = 0.35;
+        }
+
+        // Parachute Dome (when scale > 0)
+        if (p.chuteScale > 0.05) {
+          ctx.save();
+          ctx.translate(0, -p.height * 0.5);
+          ctx.scale(p.chuteScale, p.chuteScale);
+
+          // Suspension cords
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(0, 0); ctx.lineTo(-32, -45);
+          ctx.moveTo(0, 0); ctx.lineTo(-12, -50);
+          ctx.moveTo(0, 0); ctx.lineTo(12, -50);
+          ctx.moveTo(0, 0); ctx.lineTo(32, -45);
+          ctx.stroke();
+
+          // Colorful Parachute Dome panels
+          const chuteY = -52;
+          const colors = ['#f43f5e', '#fbbf24', '#10b981', '#00f2fe', '#a855f7'];
+          for (let i = 0; i < 5; i++) {
+            const startAng = Math.PI + (i * Math.PI) / 5;
+            const endAng = Math.PI + ((i + 1) * Math.PI) / 5;
+            ctx.fillStyle = colors[i];
+            ctx.beginPath();
+            ctx.moveTo(0, chuteY);
+            ctx.arc(0, chuteY, 36, startAng, endAng);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // If torn, draw jagged patch / tear stitches
+          if (p.torn) {
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(-16, chuteY - 14);
+            ctx.lineTo(-4, chuteY - 24);
+            ctx.lineTo(-10, chuteY - 8);
+            ctx.stroke();
+          }
+
+          ctx.restore();
+        }
+
+        // Cylindrical CanSat Body (Soda-can proportions)
+        const w = p.width;
+        const h = p.height;
+
+        // Metallic cylinder gradient
+        const cylGrad = ctx.createLinearGradient(-w * 0.5, 0, w * 0.5, 0);
+        cylGrad.addColorStop(0, '#64748b');
+        cylGrad.addColorStop(0.3, '#f1f5f9');
+        cylGrad.addColorStop(0.7, '#94a3b8');
+        cylGrad.addColorStop(1, '#334155');
+
+        ctx.fillStyle = cylGrad;
+        ctx.beginPath();
+        ctx.roundRect(-w * 0.5, -h * 0.5, w, h, 6);
+        ctx.fill();
+
+        // High-tech team band / decals
+        ctx.fillStyle = '#00f2fe';
+        ctx.fillRect(-w * 0.5, -8, w, 6);
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 7px Orbitron';
+        ctx.textAlign = 'center';
+        ctx.fillText("SKYLINK", 0, -3);
+
+        // Antenna
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(0, h * 0.5);
+        ctx.lineTo(0, h * 0.5 + 16);
+        ctx.stroke();
+        // Antenna beacon LED
+        ctx.fillStyle = Math.floor(Date.now() / 200) % 2 === 0 ? '#10b981' : '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(0, h * 0.5 + 16, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Energy Shield Aura
+        if (p.shieldTimer > 0) {
+          ctx.strokeStyle = 'rgba(0, 242, 254, 0.8)';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, 0, h * 0.65, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Cartoon inside-out backup umbrella when crashing
+        if (this.isCrashing && this.umbrellaScale > 0.05) {
+          ctx.save();
+          ctx.translate(0, -p.height * 0.5);
+          ctx.scale(this.umbrellaScale, this.umbrellaScale);
+
+          // Umbrella metal shaft
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(0, -32);
+          ctx.stroke();
+
+          // Inverted inside-out umbrella fabric (pointing up like a broken cup)
+          ctx.fillStyle = '#ec4899';
+          ctx.beginPath();
+          ctx.moveTo(0, -32);
+          ctx.lineTo(-24, -50);
+          ctx.quadraticCurveTo(0, -42, 24, -50);
+          ctx.closePath();
+          ctx.fill();
+
+          // Broken frayed umbrella ribs
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.moveTo(0, -32); ctx.lineTo(-24, -50);
+          ctx.moveTo(0, -32); ctx.lineTo(-8, -44);
+          ctx.moveTo(0, -32); ctx.lineTo(8, -44);
+          ctx.moveTo(0, -32); ctx.lineTo(24, -50);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      drawFloatingTexts(ctx) {
+        ctx.save();
+        this.floatingTexts.forEach(ft => {
+          ctx.globalAlpha = ft.alpha;
+          ctx.fillStyle = ft.color;
+          ctx.font = 'bold 12px Orbitron';
+          ctx.textAlign = 'center';
+          ctx.shadowColor = '#000';
+          ctx.shadowBlur = 4;
+          ctx.fillText(ft.text, ft.x, ft.y);
+        });
+        ctx.restore();
+      }
+    }
+
+
+    /* =========================================================
+       6. GAME 2: CANSAT: STACK-UP! (Precision Slicing Stacker)
+       ========================================================= */
+    class StackUpGame {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.running = false;
+        this.score = 0;
+        this.perfectStreak = 0;
+        this.unitsSealed = 0;
+        this.totalStacked = 0;
+
+        this.baseWidth = 140;
+        this.blockHeight = 28;
+
+        // Subsystem modules in cycle:
+        // 0: Battery, 1: MCU, 2: Sensors, 3: Solar Ring, 4: Telemetry Radio, 5: Parachute Dome
+        this.moduleTypes = [
+          { name: "BATTERY PACK", color: "#10b981", sub: "Li-Ion 3.7V" },
+          { name: "FLIGHT MCU", color: "#3b82f6", sub: "Dual-Core ARM" },
+          { name: "ENV SENSORS", color: "#06b6d4", sub: "BMP388 + IMU" },
+          { name: "SOLAR ARRAY", color: "#f59e0b", sub: "Triple-Junction" },
+          { name: "RADIO TELEMETRY", color: "#8b5cf6", sub: "LoRa 433MHz" },
+          { name: "PARACHUTE CAP", color: "#ec4899", sub: "Ejection Dome" }
+        ];
+
+        this.stack = [];
+        this.fallingSlices = [];
+        this.celebrationParticles = [];
+
+        // Current sliding block
+        this.currentBlock = null;
+        this.slideDirection = 1;
+        this.slideSpeed = 3.5;
+
+        // Camera scroll & zoom
+        this.cameraY = 0;
+        this.targetCameraY = 0;
+        this.cameraScale = 1.0;
+        this.targetCameraScale = 1.0;
+        this.isGameOverZoom = false;
+        this.gameOverTimer = 0;
+
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        this.onAction = (e) => {
+          if (e) e.preventDefault();
+          this.dropBlock();
+        };
+
+        this.onKeyDown = (e) => {
+          if (e.code === 'Space') {
+            e.preventDefault();
+            this.dropBlock();
+          }
+        };
+
+        window.addEventListener('keydown', this.onKeyDown);
+        this.canvas.addEventListener('pointerdown', this.onAction);
+        touchStackTap.addEventListener('pointerdown', this.onAction);
+      }
+
+      destroy() {
+        this.running = false;
+        window.removeEventListener('keydown', this.onKeyDown);
+        this.canvas.removeEventListener('pointerdown', this.onAction);
+        touchStackTap.removeEventListener('pointerdown', this.onAction);
+      }
+
+      start() {
+        this.running = true;
+        this.onResize();
+        this.initStack();
+        this.spawnNextBlock();
+        this.loop();
+      }
+
+      onResize() {
+        const w = parseFloat(this.canvas.style.width);
+        const h = parseFloat(this.canvas.style.height);
+        this.logicalWidth = w || 480;
+        this.logicalHeight = h || 720;
+      }
+
+      initStack() {
+        this.stack = [];
+        // Base ground pedestal
+        const startY = this.logicalHeight - 120;
+        this.stack.push({
+          x: this.logicalWidth * 0.5 - this.baseWidth * 0.5,
+          y: startY,
+          width: this.baseWidth,
+          height: this.blockHeight,
+          moduleIndex: 0,
+          unitIndex: 0
+        });
+      }
+
+      spawnNextBlock() {
+        const topBlock = this.stack[this.stack.length - 1];
+        const nextModuleIdx = this.totalStacked % 6;
+        const currentUnit = Math.floor(this.totalStacked / 6);
+
+        // Speed increases by 12% per completed 6-block unit
+        let baseSpeed = 3.5 * Math.pow(1.12, currentUnit);
+
+        // Bouncy speed blocks starting at Unit 3
+        const isBouncy = currentUnit >= 2;
+
+        this.currentBlock = {
+          x: 0,
+          y: topBlock.y - this.blockHeight,
+          width: topBlock.width,
+          height: this.blockHeight,
+          moduleIndex: nextModuleIdx,
+          unitIndex: currentUnit,
+          speed: baseSpeed,
+          isBouncy: isBouncy,
+          bouncyTimer: 0
+        };
+
+        this.slideDirection = Math.random() > 0.5 ? 1 : -1;
+        if (this.slideDirection === -1) {
+          this.currentBlock.x = this.logicalWidth - this.currentBlock.width;
+        }
+      }
+
+      dropBlock() {
+        if (!this.running || !this.currentBlock) return;
+
+        AudioEngine.init();
+        const cur = this.currentBlock;
+        const base = this.stack[this.stack.length - 1];
+
+        const curCenter = cur.x + cur.width * 0.5;
+        const baseCenter = base.x + base.width * 0.5;
+        const offset = curCenter - baseCenter;
+
+        // 1. THE "PERFECT SNAP" CHECK: within 5 pixels of dead center
+        if (Math.abs(offset) <= 5) {
+          cur.x = base.x; // Snap dead center
+          this.perfectStreak++;
+          const streakMult = Math.min(10, this.perfectStreak);
+          const snapPts = 150 * streakMult;
+          this.score += snapPts;
+          AudioEngine.perfectSnap(this.perfectStreak);
+
+          // 3-Streak Width Recovery Mechanic (+15% width expansion)
+          if (this.perfectStreak % 3 === 0) {
+            const widened = Math.min(this.baseWidth, cur.width * 1.15);
+            cur.x -= (widened - cur.width) * 0.5;
+            cur.width = widened;
+            AudioEngine.shieldGet();
+          }
+
+          this.triggerSparks(cur.x + cur.width * 0.5, cur.y, '#00f2fe', 20);
+
+        } else {
+          // Missed dead center: reset streak
+          this.perfectStreak = 0;
+
+          // 2. CHECK COMPLETE MISS
+          const leftOverhang = base.x - cur.x;
+          const rightOverhang = (cur.x + cur.width) - (base.x + base.width);
+
+          if (cur.x + cur.width <= base.x || cur.x >= base.x + base.width) {
+            // COMPLETE MISS -> Block tumbles off screen, Game Over!
+            this.fallingSlices.push({
+              x: cur.x,
+              y: cur.y,
+              width: cur.width,
+              height: cur.height,
+              color: this.moduleTypes[cur.moduleIndex].color,
+              vx: (Math.random() - 0.5) * 6,
+              vy: 2,
+              rot: 0,
+              vRot: 0.15
+            });
+            this.currentBlock = null;
+            this.handleStackGameOver();
+            return;
+          }
+
+          // 3. THE OVERHANG SLICE MECHANIC
+          AudioEngine.sliceLaser();
+          if (leftOverhang > 0) {
+            // Sliced off left side
+            this.fallingSlices.push({
+              x: cur.x,
+              y: cur.y,
+              width: leftOverhang,
+              height: cur.height,
+              color: this.moduleTypes[cur.moduleIndex].color,
+              vx: -2.5,
+              vy: 1,
+              rot: 0,
+              vRot: -0.08
+            });
+            cur.x = base.x;
+            cur.width -= leftOverhang;
+          } else if (rightOverhang > 0) {
+            // Sliced off right side
+            this.fallingSlices.push({
+              x: base.x + base.width,
+              y: cur.y,
+              width: rightOverhang,
+              height: cur.height,
+              color: this.moduleTypes[cur.moduleIndex].color,
+              vx: 2.5,
+              vy: 1,
+              rot: 0,
+              vRot: 0.08
+            });
+            cur.width -= rightOverhang;
+          }
+
+          this.triggerSparks(cur.x, cur.y, '#f59e0b', 12);
+          this.score += 50; // Base stacked module points
+          AudioEngine.stackDrop();
+        }
+
+        // Commit stacked block
+        this.stack.push({
+          x: cur.x,
+          y: cur.y,
+          width: cur.width,
+          height: cur.height,
+          moduleIndex: cur.moduleIndex,
+          unitIndex: cur.unitIndex
+        });
+        this.totalStacked++;
+
+        // 4. 6-MODULE CANSAT UNIT LAUNCH MILESTONE
+        if (this.totalStacked % 6 === 0) {
+          this.unitsSealed++;
+          this.score += 500; // Bonus points for sealed unit
+          AudioEngine.unitSealed();
+          this.triggerConfetti(this.logicalWidth * 0.5, cur.y);
+        }
+
+        // Camera scroll tracking upward
+        this.targetCameraY = Math.max(0, (this.stack.length - 8) * this.blockHeight);
+
+        // Spawn next
+        this.spawnNextBlock();
+      }
+
+      handleStackGameOver() {
+        this.isGameOverZoom = true;
+        this.gameOverTimer = 70; // ~1.2s smooth zoom out animation
+        AudioEngine.crashFail();
+
+        // Calculate scale to fit the entire stacked tower within the viewport!
+        const totalHeight = (this.stack.length + 2) * this.blockHeight;
+        this.targetCameraScale = Math.max(0.24, Math.min(1.0, (this.logicalHeight * 0.72) / totalHeight));
+        this.targetCameraY = (this.stack.length * this.blockHeight) * 0.5 - 40;
+      }
+
+      triggerSparks(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+          this.celebrationParticles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8 - 2,
+            radius: Math.random() * 2.5 + 1.5,
+            color: color,
+            alpha: 1.0,
+            gravity: 0.2
+          });
+        }
+      }
+
+      triggerConfetti(x, y) {
+        const colors = ['#00f2fe', '#3b82f6', '#10b981', '#f59e0b', '#ec4899'];
+        for (let i = 0; i < 40; i++) {
+          this.celebrationParticles.push({
+            x: x + (Math.random() - 0.5) * 120,
+            y: y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: -Math.random() * 8 - 4,
+            radius: Math.random() * 3 + 2,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            alpha: 1.0,
+            gravity: 0.15
+          });
+        }
+      }
+
+      loop() {
+        if (!this.running && !this.fallingSlices.length && !this.isGameOverZoom) return;
+        this.update();
+        this.render();
+        requestAnimationFrame(() => this.loop());
+      }
+
+      update() {
+        if (this.isGameOverZoom) {
+          this.gameOverTimer--;
+          this.cameraScale += (this.targetCameraScale - this.cameraScale) * 0.08;
+          this.cameraY += (this.targetCameraY - this.cameraY) * 0.08;
+          if (this.gameOverTimer <= 0) {
+            this.isGameOverZoom = false;
+            this.running = false;
+            triggerGameOver(
+              this.score,
+              "STACK TUMBLED!",
+              `Modules: ${this.totalStacked} • Units Sealed: ${this.unitsSealed}`
+            );
+          }
+        } else {
+          // Camera smoothing
+          this.cameraY += (this.targetCameraY - this.cameraY) * 0.1;
+        }
+
+        // Current sliding block update
+        if (this.currentBlock) {
+          const cur = this.currentBlock;
+          let spd = cur.speed;
+
+          if (cur.isBouncy) {
+            // Speed block pauses at edge then whips across
+            const distFromEdge = Math.min(cur.x, this.logicalWidth - (cur.x + cur.width));
+            if (distFromEdge < 30) {
+              spd *= 0.5;
+            } else {
+              spd *= 1.4;
+            }
+          }
+
+          cur.x += spd * this.slideDirection;
+
+          // Bounce off screen walls
+          if (cur.x <= 0) {
+            cur.x = 0;
+            this.slideDirection = 1;
+          } else if (cur.x + cur.width >= this.logicalWidth) {
+            cur.x = this.logicalWidth - cur.width;
+            this.slideDirection = -1;
+          }
+        }
+
+        // Falling sliced pieces physics
+        for (let i = this.fallingSlices.length - 1; i >= 0; i--) {
+          const s = this.fallingSlices[i];
+          s.x += s.vx;
+          s.y += s.vy;
+          s.vy += 0.35; // gravity
+          s.rot += s.vRot;
+          if (s.y > this.logicalHeight + 100) {
+            this.fallingSlices.splice(i, 1);
+          }
+        }
+
+        // Particles update
+        for (let i = this.celebrationParticles.length - 1; i >= 0; i--) {
+          const p = this.celebrationParticles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.alpha -= 0.02;
+          if (p.alpha <= 0) this.celebrationParticles.splice(i, 1);
+        }
+
+        // Update HUD
+        hudScoreVal.textContent = this.score.toLocaleString();
+        hudExtraStatVal.textContent = `x${this.perfectStreak}`;
+        hudHealthStatVal.textContent = `${this.unitsSealed} CANSATS`;
+      }
+
+      render() {
+        const ctx = this.ctx;
+        ctx.save();
+
+        // Background space gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, this.logicalHeight);
+        bgGrad.addColorStop(0, '#020617');
+        bgGrad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, this.logicalWidth, this.logicalHeight);
+
+        // Apply camera transformation and zoom
+        ctx.translate(this.logicalWidth * 0.5, this.logicalHeight * 0.5);
+        ctx.scale(this.cameraScale, this.cameraScale);
+        ctx.translate(-this.logicalWidth * 0.5, -this.logicalHeight * 0.5 + this.cameraY);
+
+        // Draw stacked blocks
+        this.stack.forEach((b, idx) => {
+          this.drawModuleBlock(ctx, b.x, b.y, b.width, b.height, b.moduleIndex, idx === 0);
+          // Draw Sealed Unit Shell brackets every 6 modules
+          if (idx > 0 && idx % 6 === 0) {
+            this.drawUnitBracket(ctx, b.x, b.y + b.height * 6, b.width, b.height * 6);
+          }
+        });
+
+        // Draw sliding block
+        if (this.currentBlock) {
+          const c = this.currentBlock;
+          this.drawModuleBlock(ctx, c.x, c.y, c.width, c.height, c.moduleIndex, false, true);
+
+          // Vertical laser cutting guides
+          const base = this.stack[this.stack.length - 1];
+          ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
+          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(base.x, c.y - 10);
+          ctx.lineTo(base.x, base.y + base.height);
+          ctx.moveTo(base.x + base.width, c.y - 10);
+          ctx.lineTo(base.x + base.width, base.y + base.height);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // Draw falling sheared slices
+        this.fallingSlices.forEach(s => {
+          ctx.save();
+          ctx.translate(s.x + s.width * 0.5, s.y + s.height * 0.5);
+          ctx.rotate(s.rot);
+          ctx.fillStyle = s.color;
+          ctx.fillRect(-s.width * 0.5, -s.height * 0.5, s.width, s.height);
+          ctx.restore();
+        });
+
+        // Draw particles
+        this.celebrationParticles.forEach(p => {
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.restore();
+      }
+
+      drawModuleBlock(ctx, x, y, w, h, moduleIndex, isPedestal = false, isSliding = false) {
+        ctx.save();
+        const mod = this.moduleTypes[moduleIndex] || this.moduleTypes[0];
+
+        // Metallic Subsystem Box with Bevel
+        ctx.fillStyle = isPedestal ? '#334155' : mod.color;
+        ctx.fillRect(x, y, w, h);
+
+        // Border & Highlight
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x, y, w, h);
+
+        // Hardware details (Copper traces, sensor holes, microchips)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+
+        // Text label if block is wide enough
+        if (w >= 70) {
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 8px Orbitron';
+          ctx.textAlign = 'center';
+          ctx.fillText(mod.name, x + w * 0.5, y + 16);
+        }
+
+        ctx.restore();
+      }
+
+      drawUnitBracket(ctx, x, bottomY, w, totalHeight) {
+        // Translucent cylinder clamp shell
+        ctx.save();
+        ctx.strokeStyle = '#00f2fe';
+        ctx.lineWidth = 2;
+        ctx.fillStyle = 'rgba(0, 242, 254, 0.08)';
+        ctx.strokeRect(x - 4, bottomY - totalHeight - 2, w + 8, totalHeight + 4);
+        ctx.fillRect(x - 4, bottomY - totalHeight - 2, w + 8, totalHeight + 4);
+
+        // Clamp bolts
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.arc(x - 4, bottomY - totalHeight * 0.5, 3, 0, Math.PI * 2);
+        ctx.arc(x + w + 4, bottomY - totalHeight * 0.5, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+
+    /* =========================================================
+       7. GAME 3: CANSAT: RADAR RING (360° Circular Telemetry Dish)
+       ========================================================= */
+    class RadarRingGame {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.running = false;
+        this.score = 0;
+        this.lives = 3; // Signal Locks
+        this.bouncesCount = 0;
+
+        // Dish Paddle
+        this.dishAngle = 0; // In radians
+        this.dishArc = Math.PI * 0.20; // 36 degrees default
+        this.superDishTimer = 0; // Solar flare power-up
+
+        // Wind Jammer Zone
+        this.windJammerTimer = 0;
+        this.windJammerInterval = 420;
+        this.windJammerDir = 1;
+
+        // Entities
+        this.orbs = [];
+        this.interferenceNodes = [];
+        this.particles = [];
+        this.floatingTexts = [];
+
+        // Center CanSat
+        this.centerCanSatAngle = 0;
+
+        // Input
+        this.input = { left: false, right: false };
+
+        this.bindEvents();
+      }
+
+      bindEvents() {
+        this.onKeyDown = (e) => {
+          if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.input.left = true;
+          if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.input.right = true;
+        };
+
+        this.onKeyUp = (e) => {
+          if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') this.input.left = false;
+          if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') this.input.right = false;
+        };
+
+        // Mouse & Touch 360-degree pointer guidance
+        this.onPointerMove = (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          const cx = this.logicalWidth * 0.5;
+          const cy = this.logicalHeight * 0.5;
+          const px = (e.clientX - rect.left) * (this.logicalWidth / rect.width);
+          const py = (e.clientY - rect.top) * (this.logicalHeight / rect.height);
+          this.dishAngle = Math.atan2(py - cy, px - cx);
+        };
+
+        window.addEventListener('keydown', this.onKeyDown);
+        window.addEventListener('keyup', this.onKeyUp);
+        this.canvas.addEventListener('pointermove', this.onPointerMove);
+        this.canvas.addEventListener('pointerdown', this.onPointerMove);
+
+        // Mobile touch buttons
+        this.bindTouchBtn(touchRadarLeft, (pressed) => this.input.left = pressed);
+        this.bindTouchBtn(touchRadarRight, (pressed) => this.input.right = pressed);
+      }
+
+      bindTouchBtn(btn, cb) {
+        const start = (e) => { e.preventDefault(); cb(true); btn.classList.add('pressed'); };
+        const end = (e) => { e.preventDefault(); cb(false); btn.classList.remove('pressed'); };
+        btn.addEventListener('pointerdown', start);
+        btn.addEventListener('pointerup', end);
+        btn.addEventListener('pointercancel', end);
+      }
+
+      destroy() {
+        this.running = false;
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('keyup', this.onKeyUp);
+        this.canvas.removeEventListener('pointermove', this.onPointerMove);
+        this.canvas.removeEventListener('pointerdown', this.onPointerMove);
+      }
+
+      start() {
+        this.running = true;
+        this.onResize();
+        this.spawnOrb();
+        this.spawnInterferenceNode();
+        this.loop();
+      }
+
+      onResize() {
+        const w = parseFloat(this.canvas.style.width);
+        const h = parseFloat(this.canvas.style.height);
+        this.logicalWidth = w || 480;
+        this.logicalHeight = h || 720;
+        this.ringRadius = Math.min(this.logicalWidth, this.logicalHeight) * 0.40;
+      }
+
+      spawnOrb() {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 4.2;
+        this.orbs.push({
+          x: this.logicalWidth * 0.5,
+          y: this.logicalHeight * 0.5,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          radius: 7,
+          color: this.orbs.length === 0 ? '#00f2fe' : (this.orbs.length === 1 ? '#fbbf24' : '#ec4899'),
+          trail: []
+        });
+      }
+
+      spawnInterferenceNode() {
+        if (this.interferenceNodes.length >= 4) return;
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * (this.ringRadius * 0.6) + this.ringRadius * 0.25;
+        const cx = this.logicalWidth * 0.5;
+        const cy = this.logicalHeight * 0.5;
+
+        // Is it a Solar Flare booster node?
+        const isBooster = Math.random() < 0.3;
+
+        this.interferenceNodes.push({
+          x: cx + Math.cos(angle) * dist,
+          y: cy + Math.sin(angle) * dist,
+          radius: isBooster ? 15 : 12,
+          isBooster: isBooster,
+          rot: 0
+        });
+      }
+
+      loop() {
+        if (!this.running) return;
+        this.update();
+        this.render();
+        requestAnimationFrame(() => this.loop());
+      }
+
+      update() {
+        const cx = this.logicalWidth * 0.5;
+        const cy = this.logicalHeight * 0.5;
+
+        // Keyboard rotation
+        if (this.input.left) this.dishAngle -= 0.06;
+        if (this.input.right) this.dishAngle += 0.06;
+
+        // Solar Flare power-up timer
+        if (this.superDishTimer > 0) {
+          this.superDishTimer--;
+          this.dishArc = Math.PI * 0.40; // 72 degrees widened!
+        } else {
+          this.dishArc = Math.PI * 0.20; // 36 degrees default
+        }
+
+        // Center CanSat spins & Wind Jammer Zone
+        if (this.windJammerTimer > 0) {
+          this.windJammerTimer--;
+          this.centerCanSatAngle += 0.14; // Rapid spin in turbulence
+          // Curve orb trajectories with atmospheric Coriolis force
+          this.orbs.forEach(orb => {
+            const perpX = -orb.vy;
+            const perpY = orb.vx;
+            orb.vx += perpX * 0.024 * this.windJammerDir;
+            orb.vy += perpY * 0.024 * this.windJammerDir;
+          });
+        } else {
+          this.windJammerInterval--;
+          if (this.windJammerInterval <= 0) {
+            this.windJammerTimer = 220; // ~3.5 seconds turbulence
+            this.windJammerInterval = 550 + Math.random() * 250;
+            this.windJammerDir = Math.random() > 0.5 ? 1 : -1;
+            this.addFloatingText("WIND JAMMER ZONE! 🌀", cx, cy - 40, '#f59e0b');
+            AudioEngine.nearMiss();
+          }
+          this.centerCanSatAngle += 0.02;
+        }
+
+        // Update Orbs
+        for (let i = this.orbs.length - 1; i >= 0; i--) {
+          const orb = this.orbs[i];
+          orb.x += orb.vx;
+          orb.y += orb.vy;
+
+          // Trail
+          orb.trail.push({ x: orb.x, y: orb.y });
+          if (orb.trail.length > 8) orb.trail.shift();
+
+          const dx = orb.x - cx;
+          const dy = orb.y - cy;
+          const distFromCenter = Math.hypot(dx, dy);
+
+          // 1. Check Collision with Curved Radar Dish
+          if (distFromCenter >= this.ringRadius - 8 && distFromCenter <= this.ringRadius + 14) {
+            const orbAngle = Math.atan2(dy, dx);
+            let angleDiff = Math.abs(orbAngle - this.dishAngle);
+            while (angleDiff > Math.PI) angleDiff = Math.abs(angleDiff - Math.PI * 2);
+
+            if (angleDiff <= this.dishArc * 0.5) {
+              // SUCCESSFUL BOUNCE!
+              this.bouncesCount++;
+              const orbSpeed = Math.hypot(orb.vx, orb.vy) * 1.02; // Slight acceleration
+
+              // Bounce back inward toward center
+              const inwardAngle = orbAngle + Math.PI + (Math.random() - 0.5) * 0.3;
+              orb.vx = Math.cos(inwardAngle) * Math.min(orbSpeed, 8.5);
+              orb.vy = Math.sin(inwardAngle) * Math.min(orbSpeed, 8.5);
+
+              // Standard Dish Bounce Points: +50 * active orbs
+              const bouncePts = 50 * this.orbs.length;
+              this.score += bouncePts;
+              AudioEngine.radarBounce();
+
+              // Edge Clip Trickshot Check (hit within outer 10% tip)
+              if (angleDiff >= this.dishArc * 0.40) {
+                this.score += 300;
+                this.addFloatingText("+300 TRICKSHOT! ⚡", orb.x, orb.y, '#fbbf24');
+                AudioEngine.trickshotLaser();
+                this.triggerLaserBeam(orb.x, orb.y, cx, cy);
+              }
+
+              // MULTIBALL ESCALATION: Every 8 bounces spawn extra orb (up to 3 simultaneous!)
+              if (this.bouncesCount % 8 === 0 && this.orbs.length < 3) {
+                this.spawnOrb();
+                this.addFloatingText("MULTIBALL ACTIVE! 📡", cx, cy - 35, '#a855f7');
+                AudioEngine.shieldGet();
+              }
+
+              this.triggerSparks(orb.x, orb.y, '#00f2fe', 10);
+            }
+          }
+
+          // 2. Check Passing through Center CanSat (Uploads telemetry for points)
+          if (distFromCenter < 24 && Math.hypot(orb.vx, orb.vy) > 0) {
+            // Deflect to another quadrant
+            const newAngle = Math.atan2(orb.vy, orb.vx) + (Math.random() - 0.5) * 0.8;
+            const spd = Math.hypot(orb.vx, orb.vy);
+            orb.vx = Math.cos(newAngle) * spd;
+            orb.vy = Math.sin(newAngle) * spd;
+            this.score += 25;
+            this.triggerSparks(cx, cy, '#10b981', 8);
+          }
+
+          // 3. Check Collision with Interference Nodes
+          for (let n = this.interferenceNodes.length - 1; n >= 0; n--) {
+            const node = this.interferenceNodes[n];
+            const ndx = orb.x - node.x;
+            const ndy = orb.y - node.y;
+            if (Math.hypot(ndx, ndy) < orb.radius + node.radius) {
+              // Shatter node!
+              AudioEngine.nodeShatter();
+              if (node.isBooster) {
+                this.superDishTimer = 480; // 8 seconds of widened dish!
+                this.score += 150;
+                this.addFloatingText("SOLAR FLARE! DISH WIDENED! ☀️", node.x, node.y, '#10b981');
+              } else {
+                this.score += 200;
+                this.addFloatingText("+200 INTERFERENCE SHATTERED! 💥", node.x, node.y, '#00f2fe');
+              }
+
+              // Deflect orb
+              orb.vx = -orb.vx;
+              orb.vy = -orb.vy;
+
+              this.triggerSparks(node.x, node.y, node.isBooster ? '#10b981' : '#a855f7', 15);
+              this.interferenceNodes.splice(n, 1);
+              setTimeout(() => this.spawnInterferenceNode(), 3000);
+            }
+          }
+
+          // 4. Orb Escaped Past Outer Ring -> Signal Lost!
+          if (distFromCenter > this.ringRadius + 30) {
+            AudioEngine.orbLost();
+            this.orbs.splice(i, 1);
+
+            // If last orb escaped, lose 1 Signal Lock (Life)
+            if (this.orbs.length === 0) {
+              this.lives--;
+              this.addFloatingText("SIGNAL LOCK LOST! ⚠️", cx, cy - 40, '#f43f5e');
+
+              if (this.lives <= 0) {
+                // Game Over!
+                this.running = false;
+                triggerGameOver(
+                  this.score,
+                  "SIGNAL LOST!",
+                  `Bounces: ${this.bouncesCount} • Max Multi-Orbs: 3`
+                );
+                return;
+              } else {
+                // Respawn single orb
+                setTimeout(() => this.spawnOrb(), 600);
+              }
+            }
+          }
+        }
+
+        // Particle updates
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const pt = this.particles[i];
+          pt.x += pt.vx;
+          pt.y += pt.vy;
+          pt.alpha -= 0.03;
+          if (pt.alpha <= 0) this.particles.splice(i, 1);
+        }
+
+        // Floating texts
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = this.floatingTexts[i];
+          ft.y -= 1.0;
+          ft.alpha -= 0.02;
+          if (ft.alpha <= 0) this.floatingTexts.splice(i, 1);
+        }
+
+        // Update HUD
+        hudScoreVal.textContent = this.score.toLocaleString();
+        hudExtraStatVal.textContent = `${this.orbs.length} ORB${this.orbs.length > 1 ? 'S' : ''}`;
+        hudHealthStatVal.textContent = `${'📡 '.repeat(Math.max(0, this.lives))}`;
+      }
+
+      triggerSparks(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            radius: Math.random() * 2 + 1,
+            color: color,
+            alpha: 1.0
+          });
+        }
+      }
+
+      triggerLaserBeam(x1, y1, x2, y2) {
+        this.floatingTexts.push({
+          isLaser: true,
+          x1, y1, x2, y2,
+          alpha: 1.0
+        });
+      }
+
+      addFloatingText(text, x, y, color = '#fff') {
+        this.floatingTexts.push({ text, x, y, color, alpha: 1.0 });
+      }
+
+      render() {
+        const ctx = this.ctx;
+        ctx.save();
+
+        const cx = this.logicalWidth * 0.5;
+        const cy = this.logicalHeight * 0.5;
+
+        // Background
+        ctx.fillStyle = '#030712';
+        ctx.fillRect(0, 0, this.logicalWidth, this.logicalHeight);
+
+        // 1. Glowing Radar Rings & Crosshairs
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.18)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, this.ringRadius, 0, Math.PI * 2);
+        ctx.arc(cx, cy, this.ringRadius * 0.65, 0, Math.PI * 2);
+        ctx.arc(cx, cy, this.ringRadius * 0.35, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.08)';
+        ctx.beginPath();
+        ctx.moveTo(cx - this.ringRadius - 20, cy); ctx.lineTo(cx + this.ringRadius + 20, cy);
+        ctx.moveTo(cx, cy - this.ringRadius - 20); ctx.lineTo(cx, cy + this.ringRadius + 20);
+        ctx.stroke();
+
+        // Wind Jammer Atmospheric Vortex Indicator
+        if (this.windJammerTimer > 0) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+          ctx.lineWidth = 3;
+          ctx.setLineDash([10, 8]);
+          ctx.beginPath();
+          ctx.arc(cx, cy, this.ringRadius * 0.82, this.centerCanSatAngle * 2, this.centerCanSatAngle * 2 + Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+
+        // 2. Curved Radar Dish Paddle
+        ctx.save();
+        const startAng = this.dishAngle - this.dishArc * 0.5;
+        const endAng = this.dishAngle + this.dishArc * 0.5;
+
+        ctx.strokeStyle = this.superDishTimer > 0 ? '#10b981' : '#00f2fe';
+        ctx.lineWidth = 9;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(cx, cy, this.ringRadius, startAng, endAng);
+        ctx.stroke();
+
+        // Dish glow backing
+        ctx.strokeStyle = this.superDishTimer > 0 ? 'rgba(16, 185, 129, 0.35)' : 'rgba(0, 242, 254, 0.35)';
+        ctx.lineWidth = 18;
+        ctx.stroke();
+        ctx.restore();
+
+        // 3. Interference Nodes (Hexagonal targets)
+        this.interferenceNodes.forEach(node => {
+          ctx.save();
+          ctx.translate(node.x, node.y);
+          ctx.strokeStyle = node.isBooster ? '#10b981' : '#a855f7';
+          ctx.fillStyle = node.isBooster ? 'rgba(16, 185, 129, 0.25)' : 'rgba(168, 85, 247, 0.25)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          for (let a = 0; a < 6; a++) {
+            const rad = (a * Math.PI) / 3;
+            const px = Math.cos(rad) * node.radius;
+            const py = Math.sin(rad) * node.radius;
+            if (a === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        // 4. Data Orbs
+        this.orbs.forEach(orb => {
+          // Trail
+          orb.trail.forEach((t, idx) => {
+            ctx.fillStyle = orb.color;
+            ctx.globalAlpha = (idx / orb.trail.length) * 0.4;
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, orb.radius * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          ctx.globalAlpha = 1.0;
+
+          // Main Orb
+          ctx.fillStyle = orb.color;
+          ctx.beginPath();
+          ctx.arc(orb.x, orb.y, orb.radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Specular highlight
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(orb.x - 2, orb.y - 2, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // 5. Center CanSat Satellite
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(this.centerCanSatAngle);
+
+        // Solar panels wings
+        ctx.fillStyle = '#1e3a8a';
+        ctx.fillRect(-34, -7, 18, 14);
+        ctx.fillRect(16, -7, 18, 14);
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-34, -7, 18, 14);
+        ctx.strokeRect(16, -7, 18, 14);
+
+        // Soda can body
+        ctx.fillStyle = '#94a3b8';
+        ctx.beginPath();
+        ctx.roundRect(-10, -14, 20, 28, 4);
+        ctx.fill();
+        ctx.fillStyle = '#00f2fe';
+        ctx.fillRect(-10, -3, 20, 6);
+
+        ctx.restore();
+
+        // 6. Particles
+        this.particles.forEach(pt => {
+          ctx.globalAlpha = pt.alpha;
+          ctx.fillStyle = pt.color;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // 7. Floating Texts & Laser beams
+        this.floatingTexts.forEach(ft => {
+          ctx.globalAlpha = ft.alpha;
+          if (ft.isLaser) {
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(ft.x1, ft.y1);
+            ctx.lineTo(ft.x2, ft.y2);
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = ft.color;
+            ctx.font = 'bold 12px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillText(ft.text, ft.x, ft.y);
+          }
+        });
+
+        ctx.restore();
+      }
+    }
+
+    // Initialize application
+    syncProfileUI();
+
+  })();
+  </script>
+</body>
+</html>
